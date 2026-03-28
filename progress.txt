@@ -9,24 +9,67 @@ This project implements TurboQuant, a near-optimal vector quantization algorithm
 3. Integrate with GLM5 and DeepSeekV3.2
 4. Validate against paper benchmarks
 
+## Local Repositories
+
+- **GLM5**: `/home/lily/wsl_git/glm5`
+- **DeepSeekV3.2**: `/home/lily/wsl_git/deepseekv3_2`
+
+These should be analyzed directly - read the code, don't just web search.
+
+## Research Document Standards
+
+### Math Formatting
+- Inline: `$formula$`
+- Display: `$$formula$$`
+- All variables should be in math mode
+
+### Target Audience
+- Assumes: Calc 3, Linear Algebra
+- Refreshes: Gamma function, information theory, concentration inequalities
+- Every claim justified with derivation or reference
+
+### Quality Bar
+- 500-2000 words per document
+- At least one worked numerical example
+- All sources cited with URLs or file paths
+- Prerequisites refreshed before diving deep
+
 ## Codebase Patterns
 
 (This section will be populated as patterns are discovered)
 
 ### Research Document Structure
-- All research docs go in `research/` directory
-- Format: `XX-topic-name.md` where XX is the story number
-- Include: theory, math, code examples, references
+All research docs go in `research/` with format `XX-topic-name.md`:
+```
+research/
+├── 01-shannon-source-coding.md
+├── 02-hypersphere-distributions.md
+├── 03-lloyd-max-quantization.md
+├── ...
+```
 
 ### CUDA Code Structure
-- Core implementations in `src/`
-- Headers: `*.cuh`, Implementations: `*.cu`
-- Tests in `tests/`
-- Build with CMake
+```
+src/
+├── rotation.cu / rotation.cuh
+├── codebook.cu / codebook.cuh
+├── turboquant_mse.cu / turboquant_mse.cuh
+├── qjl.cu / qjl.cuh
+├── turboquant_prod.cu / turboquant_prod.cuh
+├── attention_turboquant.cu
+└── README.md
+```
 
 ### Integration Structure
-- Model-specific code in `integrations/<model>/`
-- Python bindings for model integration
+```
+integrations/
+├── glm5/
+│   ├── turboquant_kv.py
+│   └── README.md
+└── deepseek/
+    ├── turboquant_kv.py
+    └── README.md
+```
 
 ## Key References
 
@@ -41,25 +84,28 @@ This project implements TurboQuant, a near-optimal vector quantization algorithm
 Date: 2026-03-28
 
 ### What was done:
-- Created comprehensive research document at research/01-shannon-source-coding.md (1356 words)
-- Covered differential entropy h(x), mutual information I(x;y), distortion-rate function D(R)
-- Documented Shannon Lower Bound (Lemma 2 from TurboQuant paper) with full formula
-- Included 3 worked examples with numerical calculations
-- Connected each concept to its role in TurboQuant's near-optimality proof
+- Created research/01-shannon-source-coding.md (1502 words, LaTeX-formatted)
+- Added Prerequisites Refresher: information content, discrete entropy, probability/expectation
+- Covered differential entropy $h(X)$, mutual information $I(X;Y)$, distortion-rate $D(R)$
+- Step-by-step derivation of Shannon Lower Bound (Lemma 2) in 4 steps
+- Two worked examples with comparison table across bit-widths
 
 ### Key learnings:
-- TurboQuant's near-optimality factor is √3π/2 ≈ 2.72, constant across all bit-widths
-- The Shannon Lower Bound is applied via Yao's minimax principle to the uniform distribution on S^{d-1}
-- The SLB formula for vectors: D(p_X, B) ≥ (d/2πe) · 2^((2/d)(h(x)-B))
-- Gaussian sources are the "hardest" to compress — this is why rotated coordinates (near-Gaussian) are a natural fit
+- TurboQuant's approximation factor is $\sqrt{3}\pi/2 \approx 2.72$, constant for all bit-widths
+- The SLB derivation hinges on: entropy power inequality + MI constraint + Gaussian maximality
+- Yao's minimax principle bridges worst-case randomized to average-case deterministic on $\mathbb{S}^{d-1}$
 
 ### Files created/modified:
-- research/01-shannon-source-coding.md (new)
+- research/01-shannon-source-coding.md (rewritten with LaTeX math)
 - prd.json (US-001 passes: true)
 - progress.txt (this entry)
 
+### Mathematical insights:
+- SLB formula: $D(p_X, B) \geq \frac{d}{2\pi e} \cdot 2^{\frac{2}{d}(h(\mathbf{x}) - B)}$
+- For unit sphere: lower bound simplifies to $D_{\text{mse}} \geq 1/4^b$
+
 ### Next story hint:
-- US-002 (Beta Distribution on Hyperspheres) depends on US-001 and focuses on Lemma 1 from the paper
-- The concentration of measure phenomenon explains why TurboQuant's scalar quantization works in high dimensions
+- US-002 (Beta Distribution on Hyperspheres) needs Gamma function refresher and Lemma 1 derivation
+- The connection: random rotation makes coordinates follow Beta distribution, which converges to Gaussian for large $d$
 
 ---

@@ -2,20 +2,33 @@
   "projectName": "TurboQuant Deep Research & Implementation",
   "branchName": "feature/turboquant-implementation",
   "description": "Deep-dive research and CUDA implementation of TurboQuant for GLM5 and DeepSeekV3.2 KV cache quantization",
+  "localRepositories": {
+    "glm5": "/home/lily/wsl_git/glm5",
+    "deepseekv3_2": "/home/lily/wsl_git/deepseekv3_2"
+  },
+  "researchGuidelines": {
+    "targetAudience": "Someone with Calculus 3 and Linear Algebra background who may need refreshers on specific concepts",
+    "mathFormatting": "All math must be formatted in LaTeX within Markdown (inline: $...$ , display: $$...$$)",
+    "comprehensiveness": "Thorough coverage without verbosity. Every claim should be justified. Include refreshers on prerequisite concepts when needed.",
+    "sources": "Cite all web sources with URLs. For local code analysis, reference specific file paths.",
+    "outputFormat": "Markdown files in research/ directory with proper LaTeX math rendering"
+  },
   "userStories": [
     {
       "id": "US-001",
       "title": "Research Shannon's Source Coding Theory",
       "priority": 1,
       "passes": true,
-      "description": "Understand Shannon's foundational work on lossy compression and distortion-rate functions",
+      "description": "Understand Shannon's foundational work on lossy compression and distortion-rate functions. Write for someone with Calc 3 + Linear Algebra who needs concept refreshers.",
       "acceptanceCriteria": [
-        "Create research/01-shannon-source-coding.md with comprehensive notes",
-        "Explain distortion-rate function D(R) in plain English",
-        "Document Shannon Lower Bound (Lemma 2 from paper)",
-        "Answer: What is mutual information I(x;y)? What is differential entropy h(x)?",
-        "Include worked examples with calculations"
+        "Create research/01-shannon-source-coding.md with LaTeX-formatted math",
+        "Include refresher: What is entropy? What is information content?",
+        "Explain distortion-rate function D(R) with intuitive buildup",
+        "Document Shannon Lower Bound (Lemma 2 from paper) with step-by-step derivation",
+        "Include worked numerical example showing the bound in action",
+        "Cite all sources with URLs"
       ],
+      "keyConceptsToRefresh": ["entropy", "mutual information", "probability distributions", "expectation"],
       "dependencies": []
     },
     {
@@ -23,14 +36,18 @@
       "title": "Research Beta Distribution on Hyperspheres",
       "priority": 2,
       "passes": false,
-      "description": "Understand why random rotation induces Beta distribution on coordinates",
+      "description": "Understand why random rotation induces Beta distribution on coordinates. Build intuition from Linear Algebra foundations.",
       "acceptanceCriteria": [
-        "Create research/02-hypersphere-distributions.md",
-        "Derive Lemma 1 formula: fX(x) = Γ(d/2)/(√π·Γ((d-1)/2)) · (1-x²)^((d-3)/2)",
-        "Explain concentration of measure phenomenon",
-        "Show convergence to N(0, 1/d) for large d",
-        "Explain why coordinates become nearly independent"
+        "Create research/02-hypersphere-distributions.md with LaTeX math",
+        "Refresher: What is an orthogonal matrix? Why does Qx preserve ||x||?",
+        "Refresher: What is a hypersphere S^(d-1)? Visualize for d=2,3",
+        "Derive Lemma 1: fX(x) = Γ(d/2)/(√π·Γ((d-1)/2)) · (1-x²)^((d-3)/2)",
+        "Explain Gamma function Γ(z) with examples: Γ(1)=1, Γ(1/2)=√π, Γ(n)=(n-1)!",
+        "Show convergence to N(0, 1/d) for large d with numerical examples",
+        "Explain concentration of measure intuitively",
+        "Cite all sources with URLs"
       ],
+      "keyConceptsToRefresh": ["orthogonal matrices", "unit sphere", "Gamma function", "normal distribution"],
       "dependencies": ["US-001"]
     },
     {
@@ -38,14 +55,19 @@
       "title": "Research Lloyd-Max Scalar Quantization",
       "priority": 3,
       "passes": false,
-      "description": "Understand optimal scalar quantization and codebook construction",
+      "description": "Understand optimal scalar quantization and codebook construction as a continuous k-means problem.",
       "acceptanceCriteria": [
-        "Create research/03-lloyd-max-quantization.md",
-        "Explain continuous k-means formulation (Equation 4)",
-        "Document Voronoi tessellation and centroid computation",
-        "List optimal codebooks for b=1,2,3,4 bits",
-        "Explain Panter-Dite high-resolution formula"
+        "Create research/03-lloyd-max-quantization.md with LaTeX math",
+        "Refresher: What is k-means clustering? What is the objective?",
+        "Explain quantization as partitioning the real line into intervals",
+        "Derive the k-means formulation (Equation 4 from paper)",
+        "Explain Voronoi tessellation: why boundaries are midpoints between centroids",
+        "Show the Lloyd-Max iterative algorithm step-by-step",
+        "Compute optimal codebooks for b=1,2,3,4 bits (include actual numerical values)",
+        "Explain Panter-Dite high-resolution formula with derivation sketch",
+        "Cite all sources with URLs"
       ],
+      "keyConceptsToRefresh": ["k-means clustering", "optimization", "integration"],
       "dependencies": ["US-002"]
     },
     {
@@ -53,14 +75,19 @@
       "title": "Research QJL Transform",
       "priority": 4,
       "passes": false,
-      "description": "Understand Quantized Johnson-Lindenstrauss for 1-bit inner product quantization",
+      "description": "Understand Quantized Johnson-Lindenstrauss for 1-bit inner product quantization.",
       "acceptanceCriteria": [
-        "Create research/04-qjl-transform.md",
-        "Document Definition 1: Qqjl(x) = sign(S·x)",
-        "Prove/explain unbiasedness (Lemma 4)",
-        "Document variance bound: Var ≤ (π/2d)·||y||²",
-        "Include reference to QJL paper (arXiv:2406.03482)"
+        "Create research/04-qjl-transform.md with LaTeX math",
+        "Refresher: What is an inner product ⟨x,y⟩? Geometric interpretation",
+        "Refresher: What is the Johnson-Lindenstrauss lemma? Why does random projection preserve distances?",
+        "Document Definition 1: Qqjl(x) = sign(S·x) where S has i.i.d. N(0,1) entries",
+        "Prove unbiasedness: E[⟨y, Q^(-1)(Q(x))⟩] = ⟨y,x⟩ step-by-step",
+        "Derive variance bound: Var ≤ (π/2d)·||y||²",
+        "Explain why sign() preserves inner product information (intuition + math)",
+        "Include reference to QJL paper (arXiv:2406.03482)",
+        "Cite all sources with URLs"
       ],
+      "keyConceptsToRefresh": ["inner product", "random matrices", "expectation and variance"],
       "dependencies": ["US-001"]
     },
     {
@@ -68,13 +95,18 @@
       "title": "Research MSE vs Inner Product Bias Problem",
       "priority": 5,
       "passes": false,
-      "description": "Understand why MSE-optimal quantizers are biased for inner products",
+      "description": "Understand why MSE-optimal quantizers are biased for inner products and how the two-stage approach fixes this.",
       "acceptanceCriteria": [
-        "Create research/05-mse-vs-inner-product-bias.md",
-        "Work through 1-bit example: bias = 2/π",
-        "Explain why residual-based correction fixes bias",
-        "Document the two-stage solution rationale"
+        "Create research/05-mse-vs-inner-product-bias.md with LaTeX math",
+        "Refresher: What does 'unbiased estimator' mean? E[θ̂] = θ",
+        "Work through the 1-bit example completely: show E[⟨y, Q^(-1)(Q(x))⟩] = (2/π)·⟨y,x⟩",
+        "Explain where the 2/π factor comes from geometrically",
+        "Show how bias decreases with higher bit-widths (table of bias factors)",
+        "Explain the two-stage solution: MSE(b-1) + QJL(1) on residual",
+        "Prove why this combination is unbiased",
+        "Cite all sources with URLs"
       ],
+      "keyConceptsToRefresh": ["bias in estimation", "residuals"],
       "dependencies": ["US-003", "US-004"]
     },
     {
@@ -82,14 +114,19 @@
       "title": "Document TurboQuant_mse Algorithm",
       "priority": 6,
       "passes": false,
-      "description": "Fully document Algorithm 1 (MSE-optimized TurboQuant)",
+      "description": "Fully document Algorithm 1 (MSE-optimized TurboQuant) with annotated pseudocode.",
       "acceptanceCriteria": [
-        "Create research/06-turboquant-mse-algorithm.md",
-        "Annotated pseudocode for Algorithm 1",
-        "Document rotation matrix generation (QR decomposition)",
-        "Document Quant_mse and DeQuant_mse procedures",
-        "Walk through Theorem 1 proof"
+        "Create research/06-turboquant-mse-algorithm.md with LaTeX math",
+        "Annotated pseudocode for Algorithm 1 with explanation of each line",
+        "Explain rotation matrix generation via QR decomposition",
+        "Refresher: What is QR decomposition? Why does it give orthogonal Q?",
+        "Document Quant_mse procedure: rotate → find nearest centroids → store indices",
+        "Document DeQuant_mse procedure: lookup centroids → rotate back",
+        "Walk through Theorem 1 proof (distortion bound) step-by-step",
+        "Include worked example: quantize a specific vector x with b=2 bits",
+        "Cite all sources with URLs"
       ],
+      "keyConceptsToRefresh": ["QR decomposition", "matrix-vector multiplication"],
       "dependencies": ["US-002", "US-003"]
     },
     {
@@ -97,14 +134,19 @@
       "title": "Document TurboQuant_prod Algorithm",
       "priority": 7,
       "passes": false,
-      "description": "Fully document Algorithm 2 (inner-product-optimized TurboQuant)",
+      "description": "Fully document Algorithm 2 (inner-product-optimized TurboQuant) with annotated pseudocode.",
       "acceptanceCriteria": [
-        "Create research/07-turboquant-prod-algorithm.md",
-        "Annotated pseudocode for Algorithm 2",
-        "Document two-stage structure: MSE(b-1) + QJL(1)",
-        "Document residual computation and norm storage",
-        "Walk through Theorem 2 proof"
+        "Create research/07-turboquant-prod-algorithm.md with LaTeX math",
+        "Annotated pseudocode for Algorithm 2 with explanation of each line",
+        "Explain the two-stage structure: why use (b-1) bits for MSE and 1 bit for QJL",
+        "Document residual computation: r = x - Q^(-1)_mse(Q_mse(x))",
+        "Explain what is stored: (idx, qjl, ||r||) and why we need the norm",
+        "Document Quant_prod and DeQuant_prod procedures",
+        "Walk through Theorem 2 proof (unbiasedness + distortion bound)",
+        "Include worked example: quantize a vector and verify unbiasedness numerically",
+        "Cite all sources with URLs"
       ],
+      "keyConceptsToRefresh": ["residuals", "composition of estimators"],
       "dependencies": ["US-005", "US-006"]
     },
     {
@@ -112,14 +154,18 @@
       "title": "Document Lower Bounds and Optimality",
       "priority": 8,
       "passes": false,
-      "description": "Understand information-theoretic lower bounds and verify near-optimality",
+      "description": "Understand information-theoretic lower bounds and verify TurboQuant's near-optimality.",
       "acceptanceCriteria": [
-        "Create research/08-lower-bounds-optimality.md",
-        "Document Theorem 3 (lower bounds)",
-        "Explain Yao's minimax principle application",
-        "Calculate approximation factor ≈2.7",
-        "Document where gaps come from"
+        "Create research/08-lower-bounds-optimality.md with LaTeX math",
+        "Refresher: What is Yao's minimax principle? Relate randomized algorithms to distributions",
+        "Document Theorem 3 (lower bounds) with full proof",
+        "Show the connection to Shannon Lower Bound from US-001",
+        "Calculate the approximation factor: TurboQuant achieves ≈2.7× optimal",
+        "Create table comparing TurboQuant distortion to lower bound for b=1,2,3,4,5",
+        "Explain why the gap is smaller at lower bit-widths",
+        "Cite all sources with URLs"
       ],
+      "keyConceptsToRefresh": ["minimax theory", "lower bounds in algorithms"],
       "dependencies": ["US-006", "US-007"]
     },
     {
@@ -127,13 +173,14 @@
       "title": "Set Up CUDA Development Environment",
       "priority": 9,
       "passes": false,
-      "description": "Set up CUDA environment for TurboQuant implementation",
+      "description": "Set up CUDA environment for TurboQuant implementation.",
       "acceptanceCriteria": [
         "Create src/ directory with CMake build system",
         "CUDA toolkit 12.x configured",
         "cuBLAS and cuRAND linked",
         "Simple test kernel compiles and runs",
-        "Google Test or similar for unit testing"
+        "Google Test or similar for unit testing",
+        "Document setup in src/README.md"
       ],
       "dependencies": []
     },
@@ -142,13 +189,14 @@
       "title": "Implement Random Rotation Matrix Generation",
       "priority": 10,
       "passes": false,
-      "description": "Generate random orthogonal rotation matrices on GPU",
+      "description": "Generate random orthogonal rotation matrices on GPU.",
       "acceptanceCriteria": [
         "Create src/rotation.cu and src/rotation.cuh",
-        "Generate random matrix with i.i.d. N(0,1) entries",
-        "Implement QR decomposition for orthogonal matrix",
-        "Unit tests verify: Π·Π^T = I",
-        "Benchmark rotation generation time"
+        "Generate random matrix with i.i.d. N(0,1) entries using cuRAND",
+        "Implement QR decomposition for orthogonal matrix (use cuSOLVER or custom)",
+        "Unit tests verify: Π·Π^T = I (within numerical tolerance)",
+        "Benchmark rotation generation time",
+        "Document in src/rotation.md"
       ],
       "dependencies": ["US-009"]
     },
@@ -157,13 +205,15 @@
       "title": "Implement Codebook Generation",
       "priority": 11,
       "passes": false,
-      "description": "Precompute optimal Lloyd-Max codebooks for Beta distributions",
+      "description": "Precompute optimal Lloyd-Max codebooks for Beta distributions.",
       "acceptanceCriteria": [
         "Create src/codebook.cu and src/codebook.cuh",
-        "Implement numerical solver for Equation 4",
+        "Implement numerical solver for Equation 4 (k-means on Beta distribution)",
         "Generate codebooks for b=1,2,3,4,5,6,7,8 bits",
-        "Codebooks match paper values",
-        "Store as compile-time constants or LUT"
+        "Codebooks match paper values (verify against US-003 research)",
+        "Store as compile-time constants or LUT",
+        "Handle different dimensions d (codebooks depend on d for finite d)",
+        "Document in src/codebook.md"
       ],
       "dependencies": ["US-009", "US-003"]
     },
@@ -172,14 +222,15 @@
       "title": "Implement TurboQuant_mse CUDA Kernel",
       "priority": 12,
       "passes": false,
-      "description": "Implement MSE-optimized quantization CUDA kernel",
+      "description": "Implement MSE-optimized quantization CUDA kernel.",
       "acceptanceCriteria": [
         "Create src/turboquant_mse.cu and src/turboquant_mse.cuh",
-        "Implement y = Π·x matrix-vector multiply",
+        "Implement y = Π·x matrix-vector multiply (use cuBLAS)",
         "Implement vectorized nearest-centroid lookup",
         "Implement dequantization x̃ = Π^T·ỹ",
-        "Unit tests verify MSE matches theoretical bounds",
-        "Benchmark throughput"
+        "Unit tests verify MSE matches theoretical bounds from US-006",
+        "Benchmark throughput (vectors/second)",
+        "Document in src/turboquant_mse.md"
       ],
       "dependencies": ["US-010", "US-011", "US-006"]
     },
@@ -188,14 +239,15 @@
       "title": "Implement QJL CUDA Kernel",
       "priority": 13,
       "passes": false,
-      "description": "Implement 1-bit QJL transform for residual quantization",
+      "description": "Implement 1-bit QJL transform for residual quantization.",
       "acceptanceCriteria": [
         "Create src/qjl.cu and src/qjl.cuh",
-        "Implement sign(S·r) computation",
+        "Implement sign(S·r) computation efficiently",
         "Implement dequantization √(π/2)/d · S^T · z",
         "Handle norm storage ||r||",
-        "Unit tests verify unbiasedness",
-        "Benchmark throughput"
+        "Unit tests verify unbiasedness (average error ≈ 0 over many samples)",
+        "Benchmark throughput",
+        "Document in src/qjl.md"
       ],
       "dependencies": ["US-010", "US-004"]
     },
@@ -204,13 +256,14 @@
       "title": "Implement TurboQuant_prod CUDA Kernel",
       "priority": 14,
       "passes": false,
-      "description": "Implement full inner-product-optimized quantization",
+      "description": "Implement full inner-product-optimized quantization.",
       "acceptanceCriteria": [
         "Create src/turboquant_prod.cu and src/turboquant_prod.cuh",
         "Compose TurboQuant_mse (b-1 bits) + QJL (1 bit)",
         "Compute and store residual norm",
         "Implement combined dequantization",
-        "Unit tests verify inner product distortion bounds"
+        "Unit tests verify inner product distortion bounds from US-007",
+        "Document in src/turboquant_prod.md"
       ],
       "dependencies": ["US-012", "US-013", "US-007"]
     },
@@ -219,44 +272,60 @@
       "title": "Implement Fused Attention Kernel",
       "priority": 15,
       "passes": false,
-      "description": "Create fused attention kernel with TurboQuant KV cache",
+      "description": "Create fused attention kernel with TurboQuant KV cache.",
       "acceptanceCriteria": [
         "Create src/attention_turboquant.cu",
         "Quantize-on-write for K, V vectors",
-        "Dequantize-on-read for attention",
-        "FlashAttention-style memory access",
-        "Handle different head dimensions",
-        "Benchmark vs baseline attention"
+        "Dequantize-on-read for attention computation",
+        "FlashAttention-style memory access patterns",
+        "Handle different head dimensions (64, 128, 256)",
+        "Benchmark vs baseline attention",
+        "Document in src/attention_turboquant.md"
       ],
       "dependencies": ["US-014"]
     },
     {
       "id": "US-016",
-      "title": "Research GLM5 KV Cache Architecture",
+      "title": "Analyze GLM5 KV Cache Architecture",
       "priority": 16,
       "passes": false,
-      "description": "Document GLM5's KV cache structure for integration",
+      "description": "Study the local GLM5 repository to understand its KV cache structure.",
+      "localPath": "/home/lily/wsl_git/glm5",
       "acceptanceCriteria": [
         "Create research/09-glm5-kv-cache.md",
-        "Document KV cache tensor shapes and layouts",
-        "Identify attention kernel entry points",
-        "Document any existing quantization",
-        "Identify hook points for TurboQuant"
+        "READ the actual code in /home/lily/wsl_git/glm5 - do NOT just web search",
+        "Document the directory structure and key files",
+        "Find and document KV cache tensor shapes: [batch, heads, seq_len, head_dim]",
+        "Identify the attention implementation file(s) with exact paths",
+        "Document how K and V are stored, accessed, and evicted",
+        "Identify any existing quantization or compression code",
+        "Identify exact hook points for TurboQuant integration",
+        "Include code snippets from the actual repository",
+        "Document model config: num_layers, num_heads, head_dim, etc."
       ],
+      "instructions": "Use bash to explore /home/lily/wsl_git/glm5. Read Python files directly. Do NOT rely on web search for code structure.",
       "dependencies": []
     },
     {
       "id": "US-017",
-      "title": "Research DeepSeekV3.2 KV Cache Architecture",
+      "title": "Analyze DeepSeekV3.2 KV Cache Architecture",
       "priority": 17,
       "passes": false,
-      "description": "Document DeepSeekV3.2's KV cache structure",
+      "description": "Study the local DeepSeekV3.2 repository to understand its KV cache and MLA structure.",
+      "localPath": "/home/lily/wsl_git/deepseekv3_2",
       "acceptanceCriteria": [
         "Create research/10-deepseek-kv-cache.md",
-        "Document MLA (Multi-head Latent Attention) structure",
-        "Document existing compression mechanisms",
-        "Identify how TurboQuant complements MLA"
+        "READ the actual code in /home/lily/wsl_git/deepseekv3_2 - do NOT just web search",
+        "Document the directory structure and key files",
+        "Document MLA (Multi-head Latent Attention) structure from the actual code",
+        "Explain how MLA differs from standard MHA (with code references)",
+        "Document existing compression mechanisms in the codebase",
+        "Find KV cache implementation with exact file paths",
+        "Identify how TurboQuant would complement MLA's latent compression",
+        "Include code snippets from the actual repository",
+        "Document model config: num_layers, num_heads, head_dim, latent_dim, etc."
       ],
+      "instructions": "Use bash to explore /home/lily/wsl_git/deepseekv3_2. Read Python files directly. Do NOT rely on web search for code structure.",
       "dependencies": []
     },
     {
@@ -264,14 +333,17 @@
       "title": "Integrate TurboQuant with GLM5",
       "priority": 18,
       "passes": false,
-      "description": "Integrate TurboQuant into GLM5's inference pipeline",
+      "description": "Integrate TurboQuant into GLM5's inference pipeline based on US-016 analysis.",
+      "localPath": "/home/lily/wsl_git/glm5",
       "acceptanceCriteria": [
         "Create integrations/glm5/turboquant_kv.py",
+        "Reference the hook points identified in US-016",
         "Hook quantization into KV cache write path",
         "Hook dequantization into attention read path",
-        "Handle outlier channels",
-        "GLM5 inference runs without crashes",
-        "Basic generation test passes"
+        "Handle outlier channels (32 outliers at higher precision)",
+        "Test: GLM5 inference runs without crashes",
+        "Test: Basic generation produces coherent output",
+        "Document integration in integrations/glm5/README.md"
       ],
       "dependencies": ["US-015", "US-016"]
     },
@@ -280,13 +352,16 @@
       "title": "Integrate TurboQuant with DeepSeekV3.2",
       "priority": 19,
       "passes": false,
-      "description": "Integrate TurboQuant into DeepSeekV3.2 inference",
+      "description": "Integrate TurboQuant into DeepSeekV3.2 inference based on US-017 analysis.",
+      "localPath": "/home/lily/wsl_git/deepseekv3_2",
       "acceptanceCriteria": [
         "Create integrations/deepseek/turboquant_kv.py",
-        "Handle MLA's latent attention structure",
+        "Reference the MLA structure documented in US-017",
+        "Handle MLA's latent attention (may need to quantize latent vectors differently)",
         "Hook into appropriate cache layers",
-        "DeepSeekV3.2 inference runs without crashes",
-        "Basic generation test passes"
+        "Test: DeepSeekV3.2 inference runs without crashes",
+        "Test: Basic generation produces coherent output",
+        "Document integration in integrations/deepseek/README.md"
       ],
       "dependencies": ["US-015", "US-017"]
     },
@@ -295,14 +370,16 @@
       "title": "Benchmark Distortion vs Paper",
       "priority": 20,
       "passes": false,
-      "description": "Validate distortion metrics match paper results",
+      "description": "Validate distortion metrics match paper results.",
       "acceptanceCriteria": [
         "Create benchmarks/distortion-validation.md",
-        "Test on DBpedia embeddings (1536-dim)",
+        "Download or generate test embeddings (e.g., random unit vectors)",
         "Measure MSE for b=1,2,3,4 bits",
         "Measure inner product distortion",
+        "Compare to theoretical bounds from US-006, US-007, US-008",
         "Results within 5% of paper values",
-        "Generate comparison plots"
+        "Generate comparison plots (can use matplotlib)",
+        "Document methodology and results"
       ],
       "dependencies": ["US-014"]
     },
@@ -311,13 +388,15 @@
       "title": "Run Needle-in-Haystack Benchmark",
       "priority": 21,
       "passes": false,
-      "description": "Validate on NIAH benchmark for KV cache compression",
+      "description": "Validate KV cache quantization on the NIAH benchmark.",
       "acceptanceCriteria": [
         "Create benchmarks/niah-results.md",
-        "Test at 4k to 104k context lengths",
-        "Test at 4x compression ratio",
-        "Score ≥ 0.99 matching paper",
-        "Generate comparison plot with baselines"
+        "Set up NIAH evaluation following paper methodology",
+        "Test at context lengths: 4k, 8k, 16k, 32k, 64k (as hardware allows)",
+        "Test at 4x compression ratio (4 bits effective)",
+        "Target: Score ≥ 0.99 matching paper",
+        "Generate comparison plot with baselines if available",
+        "Document any discrepancies from paper results"
       ],
       "dependencies": ["US-018"]
     },
@@ -326,13 +405,15 @@
       "title": "Run LongBench-E Evaluation",
       "priority": 22,
       "passes": false,
-      "description": "Validate on LongBench-E end-to-end generation",
+      "description": "Validate on LongBench-E end-to-end generation.",
       "acceptanceCriteria": [
         "Create benchmarks/longbench-results.md",
-        "Test at 2.5-bit and 3.5-bit",
+        "Set up LongBench-E evaluation",
+        "Test TurboQuant at 2.5-bit and 3.5-bit (with outlier handling)",
         "Measure scores across task categories",
-        "Scores within 1% of full precision",
-        "Generate comparison table"
+        "Target: Scores within 1% of full precision",
+        "Generate comparison table",
+        "Document methodology and any issues"
       ],
       "dependencies": ["US-018"]
     },
@@ -341,15 +422,17 @@
       "title": "Optimize CUDA Kernels for Production",
       "priority": 23,
       "passes": false,
-      "description": "Profile and optimize CUDA implementation",
+      "description": "Profile and optimize CUDA implementation.",
       "acceptanceCriteria": [
         "Create benchmarks/performance-optimization.md",
-        "Profile with Nsight Compute",
-        "Optimize memory bandwidth usage",
-        "Reduce register pressure",
-        "Document throughput (tokens/second)",
-        "Document latency overhead",
-        "Verify 4-5x memory savings"
+        "Profile with Nsight Compute (or nvprof)",
+        "Identify memory bandwidth bottlenecks",
+        "Optimize memory access patterns (coalescing)",
+        "Reduce register pressure if needed",
+        "Document throughput (tokens/second or vectors/second)",
+        "Document latency overhead vs unquantized",
+        "Verify 4-5x memory savings",
+        "List remaining optimization opportunities"
       ],
       "dependencies": ["US-020", "US-021", "US-022"]
     },
@@ -358,13 +441,15 @@
       "title": "Create Documentation and Examples",
       "priority": 24,
       "passes": false,
-      "description": "Create comprehensive documentation",
+      "description": "Create comprehensive documentation for users.",
       "acceptanceCriteria": [
-        "Complete README.md with quick start",
-        "Create docs/ directory with detailed docs",
-        "Create examples/ with working code for GLM5 and DeepSeek",
-        "Add troubleshooting guide",
-        "Test installation instructions"
+        "Complete README.md with quick start guide",
+        "Create docs/installation.md with tested instructions",
+        "Create docs/api.md documenting public functions",
+        "Create examples/glm5_example.py with working code",
+        "Create examples/deepseek_example.py with working code",
+        "Add docs/troubleshooting.md with common issues",
+        "Ensure all code examples actually run"
       ],
       "dependencies": ["US-023"]
     }

@@ -1,204 +1,252 @@
-# Shannon's Source Coding Theory and Rate-Distortion Foundations
+# Shannon's Source Coding Theory
 
-## Overview
+## Prerequisites Refresher
 
-Shannon's source coding theory provides the information-theoretic bedrock for TurboQuant. It establishes fundamental limits on how well any compression algorithm can perform — limits that TurboQuant approaches within a factor of ~2.7x. This document traces the key concepts from Shannon's 1948 paper through to their application in TurboQuant's distortion bounds.
+### Probability Distributions and Expectation
 
-## 1. Differential Entropy h(x)
+A **random variable** $X$ takes values according to a probability distribution. For a discrete $X$ with possible values $\{x_1, x_2, \ldots\}$ and probabilities $p(x_i)$, the **expectation** (or mean) is:
 
-**What is it?** Differential entropy extends Shannon's discrete entropy to continuous random variables. It measures the "inherent information content" or uncertainty of a continuous distribution.
+$$
+\mathbb{E}[X] = \sum_i x_i \, p(x_i)
+$$
 
-**Definition.** For a continuous random variable X with probability density function f_X(x):
+For a continuous $X$ with probability density function (pdf) $f_X(x)$, the expectation is:
 
-```
-h(X) = -∫ f_X(x) log f_X(x) dx
-```
+$$
+\mathbb{E}[X] = \int_{-\infty}^{\infty} x \, f_X(x) \, dx
+$$
 
-where the integral is over the support of X and log is base-2 (for bits) or natural (for nats).
+Expectation is linear: $\mathbb{E}[aX + bY] = a\mathbb{E}[X] + b\mathbb{E}[Y]$.
+
+### Information Content
+
+The **information content** (or surprisal) of an event with probability $p$ is:
+
+$$
+I(x) = -\log_2 p(x) \quad \text{(in bits)}
+$$
+
+**Intuition**: A coin landing heads ($p = 0.5$) carries $-\log_2(0.5) = 1$ bit of information. An event with $p = 0.01$ carries $\approx 6.64$ bits — rarer events are more "surprising" and carry more information.
+
+### Entropy (Discrete)
+
+**Entropy** is the *expected* information content — the average surprise per observation:
+
+$$
+H(X) = -\sum_x p(x) \log_2 p(x) = \mathbb{E}[-\log_2 p(X)]
+$$
+
+**Key examples:**
+- Fair coin ($p = 0.5$): $H = -2 \cdot 0.5 \log_2 0.5 = 1$ bit (maximum uncertainty)
+- Biased coin ($p = 0.9$): $H \approx 0.47$ bits (less uncertain, less info per flip)
+- Certain outcome ($p = 1$): $H = 0$ bits (no uncertainty at all)
+
+Entropy is bounded: $0 \leq H(X) \leq \log_2 |\mathcal{X}|$, where $|\mathcal{X}|$ is the number of possible outcomes. The upper bound is achieved when all outcomes are equally likely (uniform distribution).
+
+## Main Content
+
+### Differential Entropy $h(X)$
+
+When $X$ is continuous, we extend entropy to **differential entropy**:
+
+$$
+h(X) = -\int_{-\infty}^{\infty} f_X(x) \log_2 f_X(x) \, dx
+$$
+
+Unlike discrete entropy, differential entropy can be **negative**. For example, a uniform distribution on $[0, 1/2]$ has $h(X) = \log_2(1/2) = -1$ bit.
+
+**Important properties:**
+- Translation invariant: $h(X + c) = h(X)$
+- Scaling: $h(aX) = h(X) + \log_2 |a|$
+- **Gaussian maximizes differential entropy** for a given variance $\sigma^2$:
+
+$$
+h(X) \leq \frac{1}{2} \log_2(2\pi e \sigma^2)
+$$
+
+with equality if and only if $X \sim \mathcal{N}(\mu, \sigma^2)$.
+
+**Example:** For $X \sim \mathcal{N}(0, 1)$:
+
+$$
+h(X) = \frac{1}{2} \log_2(2\pi e) \approx 2.047 \text{ bits}
+$$
+
+### Mutual Information $I(X; Y)$
+
+**Mutual information** measures how much knowing $Y$ reduces your uncertainty about $X$:
+
+$$
+I(X; Y) = h(X) - h(X|Y) = h(Y) - h(Y|X)
+$$
+
+Equivalently, for continuous $(X, Y)$ with joint density $p(x, y)$:
+
+$$
+I(X; Y) = \int\!\!\int p(x, y) \log_2 \frac{p(x, y)}{f_X(x) \, f_Y(y)} \, dx \, dy
+$$
 
 **Key properties:**
-- Unlike discrete entropy, differential entropy can be **negative** (e.g., a uniform distribution on [0, 1/2] has h(X) = -1 bit).
-- It is **translation invariant**: h(X + c) = h(X).
-- It scales with amplitude: h(aX) = h(X) + log|a|.
-- Among all distributions with variance σ², the **Gaussian maximizes** differential entropy: h(X) ≤ ½ log(2πeσ²), with equality iff X ~ N(μ, σ²).
+- $I(X; Y) \geq 0$, with equality iff $X \perp\!\!\!\perp Y$ (independent)
+- $I(X; Y) = I(Y; X)$ (symmetric)
+- $I(X; Y) = h(X) + h(Y) - h(X, Y)$
 
-**Example: Gaussian.** For X ~ N(0, σ²):
+**Example:** Gaussian channel $Y = X + Z$ where $X \sim \mathcal{N}(0, S)$, $Z \sim \mathcal{N}(0, 1)$, independent:
 
-```
-h(X) = ½ log₂(2πeσ²)
-```
+$$
+I(X; Y) = \frac{1}{2} \log_2(1 + S)
+$$
 
-For σ² = 1: h(X) = ½ log₂(2πe) ≈ 2.047 bits.
+This is Shannon's famous channel capacity formula — the maximum rate at which information can be reliably transmitted.
 
-**Connection to TurboQuant:** After random rotation, the coordinates of a unit-sphere vector follow a distribution that converges to N(0, 1/d). The differential entropy of these coordinates determines the Shannon Lower Bound on achievable distortion.
+### The Distortion-Rate Function $D(R)$
 
-## 2. Mutual Information I(x; y)
+#### Building Intuition
 
-**What is it?** Mutual information quantifies how much knowing one random variable tells you about another. It is the reduction in uncertainty about X when Y is observed (or vice versa).
+Suppose you have a source emitting real-valued signals and you want to compress them. **Lossless** compression requires at least $H(X)$ bits per symbol (Shannon's source coding theorem). But what if you're willing to tolerate some error?
 
-**Definition.** For jointly continuous random variables (X, Y) with joint density p(x, y) and marginals p_X(x), p_Y(y):
+This is **lossy compression**. You accept a distortion $d(x, \hat{x})$ between the original $x$ and its reconstruction $\hat{x}$. The natural question is:
 
-```
-I(X; Y) = ∫∫ p(x,y) log[ p(x,y) / (p_X(x) · p_Y(y)) ] dx dy
-```
+> *What is the minimum distortion achievable at rate $R$ bits per symbol?*
 
-**Equivalent formulations via entropy:**
+The **rate-distortion function** $R(D)$ answers the dual: the minimum rate needed to achieve distortion $\leq D$. Its inverse, the **distortion-rate function** $D(R)$, directly answers our question.
 
-```
-I(X; Y) = h(X) - h(X|Y) = h(Y) - h(Y|X) = h(X) + h(Y) - h(X, Y)
-```
+#### Formal Definition
 
-**Key properties:**
-- **Non-negative**: I(X; Y) ≥ 0, with equality iff X and Y are independent.
-- **Symmetric**: I(X; Y) = I(Y; X).
-- **Concave** in p_X for fixed channel p_{Y|X}.
-- **Convex** in p_{Y|X} for fixed source p_X.
+For a source $\mathbf{x} \in \mathbb{R}^d$ with distribution $p_X$ and MSE distortion:
 
-**Example: Gaussian channel.** If Y = X + Z where X ~ N(0, S) and Z ~ N(0, 1) are independent:
+$$
+D(p_X, B) := \inf \left\{ \mathbb{E}\!\left[\|\mathbf{x} - \mathbf{y}\|_2^2\right] : I(\mathbf{x}; \mathbf{y}) \leq B \right\}
+$$
 
-```
-I(X; Y) = ½ log₂(1 + S)
-```
+The infimum is over all joint distributions of $(\mathbf{x}, \mathbf{y})$ satisfying the mutual information constraint. Here $B$ is the total bit budget across all $d$ coordinates.
 
-This is exactly Shannon's capacity formula for the Gaussian channel.
+**Shannon's Lossy Source Coding Theorem** says this bound is tight:
+- **Achievability**: For any rate $R > R(D)$, there exists a code achieving distortion $\leq D$.
+- **Converse**: No code with rate $R < R(D)$ can achieve distortion $\leq D$.
 
-**Connection to TurboQuant:** The distortion-rate function is defined as an optimization over mutual information. A quantizer that uses B bits has at most B bits of mutual information between input and output, constraining the achievable distortion.
+#### Gaussian Source Closed Form
 
-## 3. The Distortion-Rate Function D(R)
+For $X \sim \mathcal{N}(0, \sigma^2)$ with MSE distortion:
 
-**Plain English.** The distortion-rate function D(R) answers: *Given a budget of R bits per symbol, what is the minimum possible distortion?* No matter how clever the encoder/decoder pair, they cannot beat D(R). It is the inverse of the rate-distortion function R(D).
+$$
+R(D) = \frac{1}{2} \log_2 \frac{\sigma^2}{D}, \quad D(R) = \sigma^2 \cdot 2^{-2R}
+$$
 
-**Formal definition (vector form, as in TurboQuant).** For a random vector **x** ∈ ℝ^d with distribution p_X:
+This gives the **"6 dB per bit" rule**: each additional bit of rate halves the distortion (a 6 dB improvement in signal-to-noise ratio).
 
-```
-D(p_X, B) := inf { E[||x - y||²₂] : I(x; y) ≤ B }
-```
+### The Shannon Lower Bound — Lemma 2
 
-where the infimum is over all joint distributions of (x, y) satisfying the mutual information constraint, and B is the total bit budget.
+The **Shannon Lower Bound (SLB)** extends rate-distortion theory to *arbitrary* source distributions. It is the key tool used in TurboQuant's near-optimality proof.
 
-**Shannon's Lossy Source Coding Theorem:**
-- **Achievability**: For any rate R > R(D), there exists a coding scheme achieving distortion ≤ D.
-- **Converse**: No coding scheme with rate R < R(D) can achieve distortion ≤ D.
+#### Statement (Lemma 2 from the TurboQuant paper)
 
-**Gaussian source closed form.** For X ~ N(0, σ²) with MSE distortion:
+For a random vector $\mathbf{x} \in \mathbb{R}^d$ with distribution $p_X$ and finite differential entropy $h(\mathbf{x})$, the MSE distortion-rate function satisfies:
 
-```
-R(D) = ½ log₂(σ²/D)    for D ≤ σ²
-D(R) = σ² · 2^(-2R)
-```
+$$
+D(p_X, B) \geq \frac{d}{2\pi e} \cdot 2^{\frac{2}{d}(h(\mathbf{x}) - B)}
+$$
 
-This yields the "6 dB per bit" rule: each additional bit halves the distortion (reduces it by 6 dB).
+for bit budget $B \geq 0$.
 
-## 4. The Shannon Lower Bound (Lemma 2 in TurboQuant)
+#### Step-by-Step Derivation
 
-The Shannon Lower Bound (SLB) is the key tool TurboQuant uses to prove its near-optimality. It provides a **universal lower bound** on D(R) that applies to any source distribution — not just Gaussian.
+**Step 1: Relate distortion to conditional entropy.** For any joint distribution of $(\mathbf{x}, \mathbf{y})$ achieving distortion $D$, the reconstruction error $\mathbf{z} = \mathbf{x} - \mathbf{y}$ satisfies $\mathbb{E}[\|\mathbf{z}\|^2] = D$. The covariance of $\mathbf{z}$ has trace equal to $D$.
 
-**Lemma 2 (from TurboQuant paper).** For a random vector **x** ∈ ℝ^d with distribution p_X and finite differential entropy h(**x**), the MSE distortion-rate function D(B) for bit complexity B ≥ 0 satisfies:
+**Step 2: Entropy power inequality.** The Gaussian maximizes entropy for a given covariance, so:
 
-```
-D(p_X, B) ≥ (d / 2πe) · 2^((2/d)(h(x) - B))
-```
+$$
+h(\mathbf{x} | \mathbf{y}) \leq h(\mathbf{z}) \leq \frac{d}{2} \log_2\!\left(\frac{2\pi e \cdot D}{d}\right)
+$$
 
-**Derivation intuition.** The SLB arises from three facts:
-1. The mutual information I(x; y) ≤ B constrains how much information the quantized version y can carry about x.
-2. The distortion E[||x - y||²] relates to the conditional entropy h(x|y).
-3. The Gaussian maximizes entropy for a given variance, so the Gaussian source is the "hardest" to compress — giving a universal lower bound.
+The right side is the entropy of a $d$-dimensional Gaussian with per-coordinate variance $D/d$.
 
-More precisely, the SLB decomposes as:
+**Step 3: Apply mutual information constraint.** Since $I(\mathbf{x}; \mathbf{y}) = h(\mathbf{x}) - h(\mathbf{x}|\mathbf{y}) \leq B$, we get:
 
-```
-R_SLB(D) = h(X) - ½ log₂(2πeD)
-```
+$$
+h(\mathbf{x}|\mathbf{y}) \geq h(\mathbf{x}) - B
+$$
 
-Inverting: D ≥ (1/2πe) · 2^(2(h(X) - R)). The d-dimensional vector version scales by d.
+**Step 4: Combine.** Substituting Step 3 into Step 2:
 
-**Why this matters for TurboQuant.** The paper proves lower bounds (Theorem 3) by:
-1. Using **Yao's minimax principle** to reduce worst-case randomized quantizers to average-case deterministic quantizers on the uniform hypersphere distribution.
-2. Applying the **SLB** (Lemma 2) to the uniform distribution on S^{d-1}, whose differential entropy is known.
-3. Obtaining: D_mse(Q) ≥ 1/4^b for any quantizer Q using b bits per coordinate.
+$$
+h(\mathbf{x}) - B \leq \frac{d}{2} \log_2\!\left(\frac{2\pi e \cdot D}{d}\right)
+$$
 
-TurboQuant achieves D_mse ≤ (√3π/2) · (1/4^b), matching the lower bound within a factor of √3π/2 ≈ 2.72.
+Solving for $D$:
 
-## 5. Worked Examples
+$$
+D \geq \frac{d}{2\pi e} \cdot 2^{\frac{2}{d}(h(\mathbf{x}) - B)}
+$$
 
-### Example 1: Rate-Distortion for a Gaussian Source
+This is exactly the SLB. The bound is **tight** for Gaussian sources, and **asymptotically tight** (at high bit rates) for many non-Gaussian sources.
 
-Let X ~ N(0, 1) (σ² = 1). Using b = 2 bits per sample:
+## Worked Examples
 
-```
-D(R) = σ² · 2^(-2R) = 1 · 2^(-4) = 0.0625
-```
+### Example 1: Gaussian Source at 2 bits
 
-So with 2 bits per sample, the minimum achievable MSE distortion for a Gaussian source is 0.0625.
+Let $X \sim \mathcal{N}(0, 1)$ with $R = 2$ bits per sample.
 
-### Example 2: Shannon Lower Bound on the Unit Sphere
+$$
+D(R) = \sigma^2 \cdot 2^{-2R} = 1 \cdot 2^{-4} = 0.0625
+$$
 
-For **x** uniform on S^{d-1} with d = 128, using b = 2 bits per coordinate (B = 256 total bits):
+With 2 bits per sample, the best possible MSE is $0.0625$. A uniform 4-level quantizer achieves $D \approx 0.09$ — not far from optimal but not at the bound either.
 
-The differential entropy of the uniform distribution on S^{d-1} is:
+### Example 2: SLB Applied to TurboQuant
 
-```
-h(x) = log(A_d)    where A_d = 2π^(d/2) / Γ(d/2)
-```
+TurboQuant operates on vectors $\mathbf{x}$ uniformly distributed on the unit sphere $\mathbb{S}^{d-1}$, using $b$ bits per coordinate ($B = bd$ total bits).
 
-For large d, the SLB gives approximately:
+By Theorem 3 of the paper (which uses Yao's minimax principle to reduce to this case), the lower bound simplifies to:
 
-```
-D ≥ 1/4^b = 1/16 = 0.0625
-```
+$$
+D_{\text{mse}} \geq \frac{1}{4^b}
+$$
 
-TurboQuant achieves D_mse ≤ (√3π/2)/4^b ≈ 2.72 × 0.0625 ≈ 0.170.
+TurboQuant (Theorem 1) achieves:
 
-### Example 3: Numerical Comparison Across Bit-Widths
+$$
+D_{\text{mse}} \leq \frac{\sqrt{3}\,\pi}{2} \cdot \frac{1}{4^b}
+$$
 
-```python
-import math
+The approximation ratio is $\frac{\sqrt{3}\,\pi}{2} \approx 2.72$, constant across all bit-widths:
 
-def slb_lower_bound(b):
-    """Information-theoretic lower bound on MSE for b bits/coordinate."""
-    return 1.0 / (4 ** b)
+| $b$ (bits) | Lower Bound $\frac{1}{4^b}$ | TurboQuant $\frac{\sqrt{3}\pi}{2 \cdot 4^b}$ | Ratio |
+|:-:|:-:|:-:|:-:|
+| 1 | 0.2500 | 0.6802 | 2.72 |
+| 2 | 0.0625 | 0.1700 | 2.72 |
+| 3 | 0.01563 | 0.04251 | 2.72 |
+| 4 | 0.003906 | 0.01063 | 2.72 |
 
-def turboquant_mse(b):
-    """TurboQuant's achieved MSE distortion (Theorem 1)."""
-    return (math.sqrt(3) * math.pi / 2) / (4 ** b)
+## Connection to TurboQuant
 
-print(f"{'Bits':>4} | {'Lower Bound':>12} | {'TurboQuant':>12} | {'Ratio':>6}")
-print("-" * 42)
-for b in [1, 2, 3, 4]:
-    lb = slb_lower_bound(b)
-    tq = turboquant_mse(b)
-    print(f"{b:>4} | {lb:>12.6f} | {tq:>12.6f} | {tq/lb:>6.2f}")
-```
+Shannon's theory provides the **impossibility results** that make TurboQuant's guarantees meaningful:
 
-Output:
+1. **Differential entropy** $h(\mathbf{x})$ quantifies how "compressible" the rotated KV cache vectors are. After random rotation, coordinates follow a distribution converging to $\mathcal{N}(0, 1/d)$, whose entropy is analytically known.
 
-```
-Bits |  Lower Bound |   TurboQuant |  Ratio
-------------------------------------------
-   1 |     0.250000 |     0.680175 |   2.72
-   2 |     0.062500 |     0.170044 |   2.72
-   3 |     0.015625 |     0.042511 |   2.72
-   4 |     0.003906 |     0.010628 |   2.72
-```
+2. **Mutual information** $I(\mathbf{x}; \mathbf{y}) \leq B$ is the fundamental constraint: a $b$-bit-per-coordinate quantizer can carry at most $bd$ bits of information about the input.
 
-The constant factor of ≈2.72 (= √3π/2) is maintained across all bit-widths, confirming TurboQuant's near-optimality.
+3. The **distortion-rate function** $D(R)$ sets the floor. No quantizer — no matter how cleverly designed — can beat it.
 
-## 6. Summary: How Shannon Connects to TurboQuant
+4. The **Shannon Lower Bound** (Lemma 2) is applied via **Yao's minimax principle** to prove Theorem 3: any quantizer on $\mathbb{S}^{d-1}$ must incur $D_{\text{mse}} \geq 1/4^b$.
 
-| Concept | Role in TurboQuant |
-|---|---|
-| Differential entropy h(x) | Determines the fundamental compressibility of rotated KV vectors |
-| Mutual information I(x;y) | Constrains how much info a b-bit quantizer can preserve |
-| Distortion-rate D(R) | Establishes the floor — no quantizer can beat this |
-| Shannon Lower Bound | Used in Theorem 3 to prove TurboQuant is within 2.72x of optimal |
-| Gaussian maximality | Justifies why the Gaussian/Beta-distributed coordinates after rotation are a natural fit |
+5. TurboQuant's scalar quantization after random rotation achieves $D_{\text{mse}} \leq \frac{\sqrt{3}\pi}{2} \cdot \frac{1}{4^b}$ — within a factor of $\approx 2.72$ of optimal. This near-optimality is remarkable for an algorithm with $O(d \log d)$ runtime.
 
-## References
+## Key Takeaways
 
-1. Shannon, C.E. (1948). "A Mathematical Theory of Communication." *Bell System Technical Journal*, 27(3), 379-423. [Harvard hosted PDF](https://people.math.harvard.edu/~ctm/home/text/others/shannon/entropy/entropy.pdf)
-2. Shannon, C.E. (1959). "Coding Theorems for a Discrete Source with a Fidelity Criterion." *IRE National Convention Record*, Part 4, 142-163.
-3. Cover, T.M. & Thomas, J.A. (2006). *Elements of Information Theory*, 2nd ed. Wiley.
-4. Dufy et al. (2025). "TurboQuant: Online Vector Quantization with Near-optimal Distortion Rate." [arXiv:2504.19874](https://arxiv.org/abs/2504.19874)
-5. [Rate-Distortion Theory — Wikipedia](https://en.wikipedia.org/wiki/Rate%E2%80%93distortion_theory)
-6. [Stanford EE398A: Rate Distortion Theory](https://web.stanford.edu/class/ee398a/handouts/lectures/04-RateDistortionTheory.pdf)
-7. [Yale Lecture 13: Shannon Lower Bound](http://www.stat.yale.edu/~yw562/teaching/598/lec13.pdf)
+- **Entropy** measures average surprise; **differential entropy** extends this to continuous variables but can be negative
+- **Mutual information** $I(X;Y)$ measures shared information and constrains what any quantizer can preserve
+- The **distortion-rate function** $D(R)$ is the information-theoretic floor on compression error at rate $R$
+- The **Shannon Lower Bound** (Lemma 2) generalizes this floor to arbitrary distributions via a clean formula involving $h(\mathbf{x})$
+- TurboQuant exploits the SLB to prove it is within $\approx 2.72\times$ of the best *any* algorithm can achieve
+- The Gaussian is the "hardest" source to compress at a given variance — this is why TurboQuant's rotation (which induces near-Gaussian coordinates) is a natural design choice
+
+## Sources
+
+- [Shannon (1948), "A Mathematical Theory of Communication" — Harvard hosted PDF](https://people.math.harvard.edu/~ctm/home/text/others/shannon/entropy/entropy.pdf)
+- [Rate-Distortion Theory — Wikipedia](https://en.wikipedia.org/wiki/Rate%E2%80%93distortion_theory)
+- [Stanford EE398A: Rate Distortion Theory handout](https://web.stanford.edu/class/ee398a/handouts/lectures/04-RateDistortionTheory.pdf)
+- [Yale Lecture 13: Shannon Lower Bound, Fano's method](http://www.stat.yale.edu/~yw562/teaching/598/lec13.pdf)
+- [Mutual Information — Wikipedia](https://en.wikipedia.org/wiki/Mutual_information)
+- [TurboQuant paper — arXiv:2504.19874](https://arxiv.org/abs/2504.19874)
+- Cover, T.M. & Thomas, J.A. (2006). *Elements of Information Theory*, 2nd ed. Wiley. Chapters 2, 8, 10.
