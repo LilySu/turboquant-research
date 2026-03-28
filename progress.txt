@@ -1,0 +1,65 @@
+# TurboQuant Research & Implementation Progress Log
+
+## Project Context
+
+This project implements TurboQuant, a near-optimal vector quantization algorithm for KV cache compression in LLMs. The goal is to:
+
+1. Deeply understand the theoretical foundations (Shannon, Lloyd-Max, QJL)
+2. Implement TurboQuant in CUDA with production-grade efficiency
+3. Integrate with GLM5 and DeepSeekV3.2
+4. Validate against paper benchmarks
+
+## Codebase Patterns
+
+(This section will be populated as patterns are discovered)
+
+### Research Document Structure
+- All research docs go in `research/` directory
+- Format: `XX-topic-name.md` where XX is the story number
+- Include: theory, math, code examples, references
+
+### CUDA Code Structure
+- Core implementations in `src/`
+- Headers: `*.cuh`, Implementations: `*.cu`
+- Tests in `tests/`
+- Build with CMake
+
+### Integration Structure
+- Model-specific code in `integrations/<model>/`
+- Python bindings for model integration
+
+## Key References
+
+- TurboQuant Paper: https://arxiv.org/pdf/2504.19874
+- QJL Paper: https://arxiv.org/abs/2406.03482
+- Shannon 1948: "A Mathematical Theory of Communication"
+- Lloyd 1982: "Least squares quantization in PCM"
+
+## Story Progress
+
+## US-001: Research Shannon's Source Coding Theory
+Date: 2026-03-28
+
+### What was done:
+- Created comprehensive research document at research/01-shannon-source-coding.md (1356 words)
+- Covered differential entropy h(x), mutual information I(x;y), distortion-rate function D(R)
+- Documented Shannon Lower Bound (Lemma 2 from TurboQuant paper) with full formula
+- Included 3 worked examples with numerical calculations
+- Connected each concept to its role in TurboQuant's near-optimality proof
+
+### Key learnings:
+- TurboQuant's near-optimality factor is √3π/2 ≈ 2.72, constant across all bit-widths
+- The Shannon Lower Bound is applied via Yao's minimax principle to the uniform distribution on S^{d-1}
+- The SLB formula for vectors: D(p_X, B) ≥ (d/2πe) · 2^((2/d)(h(x)-B))
+- Gaussian sources are the "hardest" to compress — this is why rotated coordinates (near-Gaussian) are a natural fit
+
+### Files created/modified:
+- research/01-shannon-source-coding.md (new)
+- prd.json (US-001 passes: true)
+- progress.txt (this entry)
+
+### Next story hint:
+- US-002 (Beta Distribution on Hyperspheres) depends on US-001 and focuses on Lemma 1 from the paper
+- The concentration of measure phenomenon explains why TurboQuant's scalar quantization works in high dimensions
+
+---
