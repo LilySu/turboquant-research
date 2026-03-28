@@ -7,10 +7,11 @@
     "deepseekv3_2": "/home/lily/wsl_git/deepseekv3_2"
   },
   "researchGuidelines": {
-    "targetAudience": "Someone with Calculus 3 and Linear Algebra background who may need refreshers on specific concepts",
+    "targetAudience": "Someone with Calculus 3 and Linear Algebra background who is years out of practice and needs refreshers. Raw formulas without symbol definitions are NOT intuitive.",
     "mathFormatting": "All math must be formatted in LaTeX within Markdown (inline: $...$ , display: $$...$$)",
+    "symbolDefinitions": "REQUIRED: Every display-mode formula must be followed by a 2-3 column symbol definition table (Symbol | Meaning | optional Note). This makes formulas self-contained and scannable.",
     "comprehensiveness": "Thorough coverage without verbosity. Every claim should be justified. Include refreshers on prerequisite concepts when needed.",
-    "sources": "Cite all web sources with URLs. For local code analysis, reference specific file paths.",
+    "sources": "Cite all web sources with URLs. Log every URL visited during research to Sources section. For local code analysis, reference specific file paths.",
     "outputFormat": "Markdown files in research/ directory with proper LaTeX math rendering"
   },
   "userStories": [

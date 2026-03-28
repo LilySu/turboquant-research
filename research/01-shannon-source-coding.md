@@ -10,11 +10,22 @@ $$
 \mathbb{E}[X] = \sum_i x_i \, p(x_i)
 $$
 
+| Symbol | Meaning |
+|:--|:--|
+| $\mathbb{E}[X]$ | Expected value (average) of $X$ |
+| $x_i$ | A possible value $X$ can take |
+| $p(x_i)$ | Probability that $X = x_i$ |
+
 For a continuous $X$ with probability density function (pdf) $f_X(x)$, the expectation is:
 
 $$
 \mathbb{E}[X] = \int_{-\infty}^{\infty} x \, f_X(x) \, dx
 $$
+
+| Symbol | Meaning |
+|:--|:--|
+| $f_X(x)$ | Probability density function — height of the "probability curve" at $x$ |
+| $\int_{-\infty}^{\infty}$ | Integrate over all possible values |
 
 Expectation is linear: $\mathbb{E}[aX + bY] = a\mathbb{E}[X] + b\mathbb{E}[Y]$.
 
@@ -26,6 +37,12 @@ $$
 I(x) = -\log_2 p(x) \quad \text{(in bits)}
 $$
 
+| Symbol | Meaning | Example |
+|:--|:--|:--|
+| $I(x)$ | Information content of event $x$ | — |
+| $p(x)$ | Probability of event $x$ | $p(\text{heads}) = 0.5$ |
+| $\log_2$ | Logarithm base 2 (measures in bits) | $\log_2(8) = 3$ |
+
 **Intuition**: A coin landing heads ($p = 0.5$) carries $-\log_2(0.5) = 1$ bit of information. An event with $p = 0.01$ carries $\approx 6.64$ bits — rarer events are more "surprising" and carry more information.
 
 ### Entropy (Discrete)
@@ -35,6 +52,13 @@ $$
 $$
 H(X) = -\sum_x p(x) \log_2 p(x) = \mathbb{E}[-\log_2 p(X)]
 $$
+
+| Symbol | Meaning |
+|:--|:--|
+| $H(X)$ | Entropy of random variable $X$ (in bits) |
+| $\sum_x$ | Sum over all possible values of $X$ |
+| $p(x)$ | Probability of each value |
+| $\mathbb{E}[\cdot]$ | Expected value (average) |
 
 **Key examples:**
 - Fair coin ($p = 0.5$): $H = -2 \cdot 0.5 \log_2 0.5 = 1$ bit (maximum uncertainty)
@@ -149,6 +173,12 @@ $$
 h(X) = -\int_{-\infty}^{\infty} f_X(x) \log_2 f_X(x) \, dx
 $$
 
+| Symbol | Meaning |
+|:--|:--|
+| $h(X)$ | Differential entropy of continuous variable $X$ (in bits) |
+| $f_X(x)$ | Probability density function of $X$ |
+| $\log_2 f_X(x)$ | Log of the density — high-density regions contribute less "surprise" |
+
 Unlike discrete entropy, differential entropy can be **negative**. For example, a uniform distribution on $[0, 1/2]$ has $h(X) = \log_2(1/2) = -1$ bit.
 
 **Important properties:**
@@ -159,6 +189,11 @@ Unlike discrete entropy, differential entropy can be **negative**. For example, 
 $$
 h(X) \leq \frac{1}{2} \log_2(2\pi e \sigma^2)
 $$
+
+| Symbol | Meaning |
+|:--|:--|
+| $\sigma^2$ | Variance of $X$ (how spread out it is) |
+| $2\pi e$ | Constants from the Gaussian density ($\approx 17.08$) |
 
 with equality if and only if $X \sim \mathcal{N}(\mu, \sigma^2)$.
 
@@ -176,11 +211,25 @@ $$
 I(X; Y) = h(X) - h(X|Y) = h(Y) - h(Y|X)
 $$
 
+| Symbol | Meaning |
+|:--|:--|
+| $I(X; Y)$ | Mutual information between $X$ and $Y$ |
+| $h(X)$ | Differential entropy of $X$ (total uncertainty) |
+| $h(X\|Y)$ | Conditional entropy: uncertainty in $X$ *after* observing $Y$ |
+| $h(X) - h(X\|Y)$ | Uncertainty *reduced* by knowing $Y$ |
+
 Equivalently, for continuous $(X, Y)$ with joint density $p(x, y)$:
 
 $$
 I(X; Y) = \int\!\!\int p(x, y) \log_2 \frac{p(x, y)}{f_X(x) \, f_Y(y)} \, dx \, dy
 $$
+
+| Symbol | Meaning |
+|:--|:--|
+| $p(x, y)$ | Joint density of $(X, Y)$ together |
+| $f_X(x)$ | Marginal density of $X$ alone |
+| $f_Y(y)$ | Marginal density of $Y$ alone |
+| $\frac{p(x,y)}{f_X(x) f_Y(y)}$ | Ratio: how much the joint differs from independence |
 
 **Key properties:**
 - $I(X; Y) \geq 0$, with equality iff $X \perp\!\!\!\perp Y$ (independent)
@@ -215,6 +264,16 @@ $$
 D(p_X, B) := \inf \left\{ \mathbb{E}\!\left[\|\mathbf{x} - \mathbf{y}\|_2^2\right] : I(\mathbf{x}; \mathbf{y}) \leq B \right\}
 $$
 
+| Symbol | Meaning |
+|:--|:--|
+| $D(p_X, B)$ | Minimum achievable MSE distortion for source $p_X$ at bit budget $B$ |
+| $\mathbf{x}$ | Original $d$-dimensional source vector |
+| $\mathbf{y}$ | Reconstructed vector (after compress → decompress) |
+| $\|\mathbf{x} - \mathbf{y}\|_2^2$ | Squared Euclidean distance (the MSE) |
+| $I(\mathbf{x}; \mathbf{y})$ | Mutual information between original and reconstruction |
+| $B$ | Total bit budget (e.g., $B = b \cdot d$ for $b$ bits per coordinate) |
+| $\inf$ | Greatest lower bound (best possible over all encoders/decoders) |
+
 The infimum is over all joint distributions of $(\mathbf{x}, \mathbf{y})$ satisfying the mutual information constraint. Here $B$ is the total bit budget across all $d$ coordinates.
 
 **Shannon's Lossy Source Coding Theorem** says this bound is tight:
@@ -229,6 +288,13 @@ $$
 R(D) = \frac{1}{2} \log_2 \frac{\sigma^2}{D}, \quad D(R) = \sigma^2 \cdot 2^{-2R}
 $$
 
+| Symbol | Meaning | Example ($\sigma^2=1$, $R=2$) |
+|:--|:--|:--|
+| $R(D)$ | Minimum bits/symbol to achieve distortion $D$ | $R(0.0625) = 2$ bits |
+| $D(R)$ | Minimum distortion at rate $R$ bits/symbol | $D(2) = 0.0625$ |
+| $\sigma^2$ | Source variance | $1$ |
+| $2^{-2R}$ | Exponential decay: each extra bit halves distortion | $2^{-4} = 0.0625$ |
+
 This gives the **"6 dB per bit" rule**: each additional bit of rate halves the distortion (a 6 dB improvement in signal-to-noise ratio).
 
 ### The Shannon Lower Bound — Lemma 2
@@ -242,6 +308,15 @@ For a random vector $\mathbf{x} \in \mathbb{R}^d$ with distribution $p_X$ and fi
 $$
 D(p_X, B) \geq \frac{d}{2\pi e} \cdot 2^{\frac{2}{d}(h(\mathbf{x}) - B)}
 $$
+
+| Symbol | Meaning |
+|:--|:--|
+| $D(p_X, B)$ | Minimum achievable MSE distortion at bit budget $B$ |
+| $d$ | Vector dimension |
+| $2\pi e$ | Constants ($\approx 17.08$) — from Gaussian entropy |
+| $h(\mathbf{x})$ | Differential entropy of the source vector |
+| $B$ | Total bit budget across all coordinates |
+| $2^{(\cdot)}$ | Exponential: distortion decays exponentially with bits |
 
 for bit budget $B \geq 0$.
 

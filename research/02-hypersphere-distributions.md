@@ -10,6 +10,12 @@ $$
 Q^T Q = Q Q^T = I
 $$
 
+| Symbol | Meaning |
+|:--|:--|
+| $Q$ | Orthogonal matrix ($d \times d$) |
+| $Q^T$ | Transpose of $Q$ (rows become columns) |
+| $I$ | Identity matrix (1's on diagonal, 0's elsewhere) |
+
 **Why does $Q\mathbf{x}$ preserve $\|\mathbf{x}\|$?** Because:
 
 $$
@@ -28,6 +34,12 @@ $$
 \mathbb{S}^{d-1} = \left\{ \mathbf{x} \in \mathbb{R}^d : \|\mathbf{x}\|_2 = 1 \right\}
 $$
 
+| Symbol | Meaning | Example |
+|:--|:--|:--|
+| $\mathbb{S}^{d-1}$ | Unit hypersphere in $d$ dimensions | $\mathbb{S}^1$ = unit circle, $\mathbb{S}^2$ = sphere surface |
+| $\mathbb{R}^d$ | $d$-dimensional real space | $\mathbb{R}^3$ = familiar 3D space |
+| $\|\mathbf{x}\|_2$ | Euclidean norm: $\sqrt{x_1^2 + \cdots + x_d^2}$ | $\|(3,4)\|_2 = 5$ |
+
 The superscript $d-1$ indicates the *intrinsic* dimension (degrees of freedom), not the ambient space.
 
 **Visualizing low dimensions:**
@@ -45,6 +57,13 @@ $$
 \Gamma(z) = \int_0^\infty t^{z-1} e^{-t} \, dt, \quad \operatorname{Re}(z) > 0
 $$
 
+| Symbol | Meaning | Example |
+|:--|:--|:--|
+| $\Gamma(z)$ | Gamma function — generalizes factorial | $\Gamma(5) = 4! = 24$ |
+| $t^{z-1}$ | Power function inside the integral | When $z=3$: $t^2$ |
+| $e^{-t}$ | Exponential decay (ensures convergence) | — |
+| $\operatorname{Re}(z) > 0$ | Input must have positive real part | Works for $z = 1/2, 1, 3.7, \ldots$ |
+
 **Key values:**
 - $\Gamma(1) = 1$
 - $\Gamma(n) = (n-1)!$ for positive integers (e.g., $\Gamma(5) = 24$)
@@ -58,6 +77,13 @@ $$
 A_{d-1}(r) = \frac{2\pi^{d/2}}{\Gamma(d/2)} \cdot r^{d-1}
 $$
 
+| Symbol | Meaning | Example |
+|:--|:--|:--|
+| $A_{d-1}(r)$ | Surface area of $(d-1)$-sphere with radius $r$ | $A_2(1) = 4\pi$ (familiar sphere) |
+| $d$ | Ambient dimension | $d=3$: regular 3D sphere |
+| $r$ | Radius of the sphere | $r=1$ for unit sphere |
+| $\Gamma(d/2)$ | Gamma function (defined above) | $\Gamma(3/2) = \sqrt{\pi}/2$ |
+
 ## Main Content
 
 ### Lemma 1: Marginal Distribution of a Single Coordinate
@@ -67,6 +93,16 @@ $$
 $$
 f_X(x) = \frac{\Gamma(d/2)}{\sqrt{\pi} \; \Gamma\!\left(\frac{d-1}{2}\right)} \left(1 - x^2\right)^{(d-3)/2}, \quad x \in [-1, 1]
 $$
+
+| Symbol | Meaning |
+|:--|:--|
+| $f_X(x)$ | Probability density function of a single coordinate $x_j$ |
+| $x$ | Value of the coordinate (ranges from $-1$ to $1$) |
+| $d$ | Ambient dimension of the sphere |
+| $\Gamma(d/2)$ | Gamma function evaluated at $d/2$ (part of normalization constant) |
+| $\Gamma((d-1)/2)$ | Gamma function evaluated at $(d-1)/2$ (part of normalization constant) |
+| $\sqrt{\pi}$ | Comes from $\Gamma(1/2) = \sqrt{\pi}$ in the surface area ratio |
+| $(1-x^2)^{(d-3)/2}$ | The shape: peaks at $x=0$, drops to 0 at $x = \pm 1$; sharper for larger $d$ |
 
 This is a **scaled Beta distribution**. Specifically, $x_j^2 \sim \text{Beta}(1/2, (d-1)/2)$.
 
@@ -140,6 +176,14 @@ $$
 \mathbb{P}\!\left(|x_j| > t\right) \leq 2\exp\!\left(-\frac{d \, t^2}{2}\right)
 $$
 
+| Symbol | Meaning | Example ($d=128$, $t=0.2$) |
+|:--|:--|:--|
+| $\mathbb{P}(\cdot)$ | Probability of the event | — |
+| $x_j$ | A single coordinate of $\mathbf{x}$ | One of 128 values |
+| $t$ | Deviation threshold | $0.2$ |
+| $d$ | Dimension | $128$ |
+| $2\exp(-dt^2/2)$ | Upper bound on tail probability | $2e^{-2.56} \approx 0.154$ |
+
 This sub-Gaussian tail bound shows that coordinates are tightly concentrated around 0 with scale $1/\sqrt{d}$.
 
 **Near-independence.** For large $d$, distinct coordinates $x_i$ and $x_j$ (with $i \neq j$) are nearly independent. Their covariance is $\text{Cov}(x_i, x_j) = -1/(d(d-1)) \to 0$ as $d \to \infty$. Combined with the Gaussian convergence, this means the coordinates behave like i.i.d. $\mathcal{N}(0, 1/d)$ draws — which is exactly the property TurboQuant exploits.
@@ -187,6 +231,11 @@ $$
 \text{Var}(x_j) = \frac{1}{d}
 $$
 
+| Symbol | Meaning | Example |
+|:--|:--|:--|
+| $\text{Var}(x_j)$ | Variance of coordinate $x_j$ | How spread out $x_j$ values are |
+| $d$ | Dimension | $d=128 \Rightarrow \text{Var} = 0.0078$ |
+
 **Proof sketch:** By symmetry, $\mathbb{E}[x_j] = 0$ and all $\mathbb{E}[x_j^2]$ are equal. Since $\sum_{j=1}^d x_j^2 = 1$, taking expectations gives $d \cdot \mathbb{E}[x_j^2] = 1$, so $\text{Var}(x_j) = 1/d$.
 
 For $d = 128$ (typical attention head dimension): $\text{Var}(x_j) = 1/128 \approx 0.0078$, standard deviation $\approx 0.088$.
@@ -198,6 +247,12 @@ TurboQuant multiplies each input vector $\mathbf{x}$ by a random orthogonal matr
 $$
 \mathbf{y} = \Pi \mathbf{x}
 $$
+
+| Symbol | Meaning |
+|:--|:--|
+| $\mathbf{y}$ | Rotated vector (output) |
+| $\Pi$ | Random orthogonal matrix (the rotation) |
+| $\mathbf{x}$ | Input vector (e.g., a KV cache vector) |
 
 Since $\Pi$ is orthogonal, $\|\mathbf{y}\| = \|\mathbf{x}\|$. If $\mathbf{x} \in \mathbb{S}^{d-1}$, then $\mathbf{y}$ is uniformly distributed on $\mathbb{S}^{d-1}$ (because a random rotation of any fixed point on the sphere yields a uniform point). By Lemma 1, each coordinate $y_j$ follows the Beta-type density derived above.
 
