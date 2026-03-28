@@ -43,6 +43,102 @@ $$
 
 Entropy is bounded: $0 \leq H(X) \leq \log_2 |\mathcal{X}|$, where $|\mathcal{X}|$ is the number of possible outcomes. The upper bound is achieved when all outcomes are equally likely (uniform distribution).
 
+## How TurboQuant Uses Shannon's Theory
+
+### Shannon's 1959 Paper: The Foundation
+
+The TurboQuant paper cites Shannon's 1959 work, *"Coding theorems for a discrete source with a fidelity criterion"* (IRE Nat. Conv. Rec., 4:142-163). This paper is where Shannon formally defined the **rate-distortion function** $R(D)$ and proved the fundamental coding theorems for lossy compression. The key idea: given a source and a distortion measure, there is a minimum bit rate $R(D)$ below which the distortion $D$ cannot be achieved — and above which it can.
+
+Shannon's 1959 paper considers a source producing symbols from an alphabet, a distortion measure $d(x, \hat{x})$ that scores how "bad" a reconstruction $\hat{x}$ is, and defines:
+
+$$
+R(D) = \min_{p(\hat{x}|x) \,:\, \mathbb{E}[d(X, \hat{X})] \leq D} I(X; \hat{X})
+$$
+
+This is the minimum mutual information (i.e., minimum bits) needed to reconstruct the source within distortion $D$. TurboQuant uses this framework to establish that its quantization scheme is near the best *any* algorithm can achieve.
+
+### The Two Distortion Measures
+
+TurboQuant addresses **two distinct distortion measures**, both grounded in Shannon's framework:
+
+#### 1. MSE Distortion $D_{\text{mse}}$
+
+MSE measures how close the reconstructed vector is to the original in Euclidean distance:
+
+$$
+D_{\text{mse}} := \mathbb{E}_Q\!\left[\left\|\mathbf{x} - Q^{-1}(Q(\mathbf{x}))\right\|_2^2\right] \leq \frac{\sqrt{3}\,\pi}{2} \cdot 4^{-b}
+$$
+
+| Component | Meaning |
+|:--|:--|
+| $\mathbf{x}$ | Input vector (unit norm, $\|\mathbf{x}\|_2 = 1$) |
+| $Q(\mathbf{x})$ | Quantization: maps $\mathbf{x}$ to a $B$-bit binary string |
+| $Q^{-1}(\cdot)$ | Dequantization: reconstructs a vector from bits |
+| $\mathbb{E}_Q$ | Expectation over randomness in the quantizer (e.g., the random rotation) |
+| $\|\cdot\|_2^2$ | Squared Euclidean distance |
+| $b$ | Bits per coordinate ($B = b \cdot d$ total bits) |
+| $\frac{\sqrt{3}\pi}{2} \approx 2.72$ | The constant gap between TurboQuant and the information-theoretic optimum |
+
+#### 2. Inner Product Distortion $D_{\text{prod}}$
+
+Many LLM operations (attention, retrieval) depend on **inner products** $\langle \mathbf{y}, \mathbf{x}\rangle$, not Euclidean distances. Inner product distortion measures how well the quantized vector preserves these:
+
+$$
+D_{\text{prod}} := \mathbb{E}_Q\!\left[\left|\langle \mathbf{y}, \mathbf{x}\rangle - \langle \mathbf{y}, Q^{-1}(Q(\mathbf{x}))\rangle\right|^2\right] \leq \frac{\sqrt{3}\,\pi^2 \cdot \|\mathbf{y}\|_2^2}{d} \cdot 4^{-b}
+$$
+
+| Component | Meaning |
+|:--|:--|
+| $\mathbf{y}$ | Query vector (e.g., the attention query) |
+| $\langle \mathbf{y}, \mathbf{x}\rangle$ | True inner product |
+| $\langle \mathbf{y}, Q^{-1}(Q(\mathbf{x}))\rangle$ | Inner product with the *reconstructed* vector |
+| $\|\mathbf{y}\|_2^2$ | Squared norm of query — error scales with query magnitude |
+| $d$ | Dimension — error *decreases* with higher dimension |
+
+**Critical insight:** A quantizer optimized purely for MSE introduces a **multiplicative bias** in inner products. At 1 bit, $\mathbb{E}[\langle \mathbf{y}, Q^{-1}(Q(\mathbf{x}))\rangle] = \frac{2}{\pi}\langle \mathbf{y}, \mathbf{x}\rangle$ — the inner product is systematically shrunk by a factor of $2/\pi \approx 0.637$. TurboQuant's two-stage design (MSE quantizer + QJL residual correction) eliminates this bias.
+
+### The Shannon Lower Bound (Simplified Form)
+
+For vectors on the unit sphere $\mathbb{S}^{d-1}$ with $b$ bits per coordinate, the Shannon Lower Bound simplifies to:
+
+$$
+D(B) \geq 2^{-2B/d} = 4^{-b}
+$$
+
+| Component | Meaning |
+|:--|:--|
+| $D(B)$ | Minimum achievable distortion for total bit budget $B$ |
+| $B = b \cdot d$ | Total bits ($b$ per coordinate, $d$ coordinates) |
+| $4^{-b}$ | The floor: distortion drops by $4\times$ for each additional bit per coordinate |
+
+This means **no quantizer** — however sophisticated — can beat $4^{-b}$ distortion on unit-sphere vectors.
+
+### TurboQuant's Codebook Optimization
+
+To achieve its MSE bound, TurboQuant solves a **continuous 1D k-means problem** to find optimal centroids for the Beta distribution (from Lemma 1, see US-002) induced by random rotation:
+
+$$
+C(f_X, b) := \min_{-1 \leq c_1 \leq \cdots \leq c_{2^b} \leq 1} \sum_{i=1}^{2^b} \int_{\frac{c_{i-1}+c_i}{2}}^{\frac{c_i+c_{i+1}}{2}} |x - c_i|^2 \cdot f_X(x) \, dx
+$$
+
+| Component | Meaning |
+|:--|:--|
+| $f_X(x)$ | PDF of coordinates after rotation (Beta distribution, converges to Gaussian) |
+| $c_1, \ldots, c_{2^b}$ | The $2^b$ centroids (reconstruction values) for a $b$-bit quantizer |
+| $\frac{c_{i-1}+c_i}{2}$ | Voronoi boundary: each point maps to its nearest centroid |
+| $\|x - c_i\|^2$ | Squared error for assigning value $x$ to centroid $c_i$ |
+
+This is the **Lloyd-Max quantizer** applied to the specific distribution induced by TurboQuant's random rotation. The optimal centroids are precomputed and stored as a lookup table (see US-003 for full derivation).
+
+### Summary: How Shannon's Theory Structures the Paper
+
+| Paper Contribution | Shannon's Role |
+|:--|:--|
+| MSE-optimal quantizer (Algorithm 1) | Shannon's framework defines MSE distortion; SLB proves the design is near-optimal |
+| Inner-product quantizer (Algorithm 2) | Extends Shannon's MSE framework to inner product fidelity; two-stage design removes bias |
+| Near-optimality proof (Theorem 3) | SLB (from Shannon 1959) provides the lower bound; TurboQuant matches within $\approx 2.72\times$ |
+| Codebook design (Equation 4) | Optimal scalar quantization is the solution to Shannon's distortion minimization for the rotation-induced distribution |
+
 ## Main Content
 
 ### Differential Entropy $h(X)$
@@ -244,9 +340,19 @@ Shannon's theory provides the **impossibility results** that make TurboQuant's g
 ## Sources
 
 - [Shannon (1948), "A Mathematical Theory of Communication" — Harvard hosted PDF](https://people.math.harvard.edu/~ctm/home/text/others/shannon/entropy/entropy.pdf)
+- [Shannon (1959), "Coding Theorems for a Discrete Source with a Fidelity Criterion" — PDF](https://gwern.net/doc/cs/algorithm/information/1959-shannon.pdf)
+- [Shannon (1959) — IEEE Xplore entry](https://ieeexplore.ieee.org/document/5311476)
+- [Shannon (1959) — Semantic Scholar](https://www.semanticscholar.org/paper/Coding-Theorems-for-a-Discrete-Source-With-a-Shannon/3e53833635a02c0a5c4a99044b89c61b1cdba02d)
 - [Rate-Distortion Theory — Wikipedia](https://en.wikipedia.org/wiki/Rate%E2%80%93distortion_theory)
 - [Stanford EE398A: Rate Distortion Theory handout](https://web.stanford.edu/class/ee398a/handouts/lectures/04-RateDistortionTheory.pdf)
 - [Yale Lecture 13: Shannon Lower Bound, Fano's method](http://www.stat.yale.edu/~yw562/teaching/598/lec13.pdf)
 - [Mutual Information — Wikipedia](https://en.wikipedia.org/wiki/Mutual_information)
+- [Shannon's Source Coding Theorem — Wikipedia](https://en.wikipedia.org/wiki/Shannon%27s_source_coding_theorem)
+- [Information Theory — Wikipedia](https://en.wikipedia.org/wiki/Information_theory)
 - [TurboQuant paper — arXiv:2504.19874](https://arxiv.org/abs/2504.19874)
+- [TurboQuant paper — arXiv HTML version](https://arxiv.org/html/2504.19874v1)
+- [TurboQuant — OpenReview (ICLR 2026)](https://openreview.net/forum?id=tO3ASKZlok)
+- [Entropy (Information Theory) — Wikipedia](https://en.wikipedia.org/wiki/Entropy_(information_theory))
+- [Duke ECE 587: Differential Entropy lecture](http://reeves.ee.duke.edu/information_theory/lecture7-Differential_Entropy.pdf)
+- [Tufts ECE 194: Entropy and Mutual Information lecture](http://www.ece.tufts.edu/ee194NIT/lect01.pdf)
 - Cover, T.M. & Thomas, J.A. (2006). *Elements of Information Theory*, 2nd ed. Wiley. Chapters 2, 8, 10.
