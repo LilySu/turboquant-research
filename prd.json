@@ -35,7 +35,7 @@
       "id": "US-002",
       "title": "Research Beta Distribution on Hyperspheres",
       "priority": 2,
-      "passes": false,
+      "passes": true,
       "description": "Understand why random rotation induces Beta distribution on coordinates. Build intuition from Linear Algebra foundations.",
       "acceptanceCriteria": [
         "Create research/02-hypersphere-distributions.md with LaTeX math",

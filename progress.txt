@@ -109,3 +109,35 @@ Date: 2026-03-28
 - The connection: random rotation makes coordinates follow Beta distribution, which converges to Gaussian for large $d$
 
 ---
+
+## US-002: Research Beta Distribution on Hyperspheres
+Date: 2026-03-28
+
+### What was done:
+- Created research/02-hypersphere-distributions.md (1368 words, LaTeX-formatted)
+- Prerequisite refreshers: orthogonal matrices, hypersphere visualization ($d=2,3$), Gamma function
+- Derived Lemma 1 via surface area slicing in 4 steps
+- Showed convergence to $\mathcal{N}(0, 1/d)$ with heuristic proof and numerical comparison
+- Covered concentration of measure with sub-Gaussian tail bound
+
+### Key learnings:
+- The derivation is geometric: marginal density = cross-sectional surface area / total surface area
+- Verification for $d=3$ gives uniform on $[-1,1]$ — Archimedes' hat-box theorem
+- Covariance between coordinates is $-1/(d(d-1)) \to 0$, justifying near-independence
+- Variance is exactly $1/d$ by symmetry: $\sum x_j^2 = 1 \Rightarrow d \cdot \mathbb{E}[x_j^2] = 1$
+
+### Files created/modified:
+- research/02-hypersphere-distributions.md (new)
+- prd.json (US-002 passes: true)
+- progress.txt (this entry)
+
+### Mathematical insights:
+- Lemma 1: $f_X(x) = \frac{\Gamma(d/2)}{\sqrt{\pi}\,\Gamma((d-1)/2)}(1-x^2)^{(d-3)/2}$
+- Convergence: $\log(1-x^2) \approx -x^2$ gives Gaussian shape with variance $1/d$
+- Sub-Gaussian tail: $\mathbb{P}(|x_j| > t) \leq 2\exp(-dt^2/2)$
+
+### Next story hint:
+- US-003 (Lloyd-Max Quantization) builds directly on this: the Beta/Gaussian density is the input distribution for the optimal scalar quantizer
+- Need to solve the continuous k-means problem (Equation 4) for this specific density
+
+---
