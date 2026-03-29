@@ -134,7 +134,7 @@
       "id": "US-007",
       "title": "Document TurboQuant_prod Algorithm",
       "priority": 7,
-      "passes": false,
+      "passes": true,
       "description": "Fully document Algorithm 2 (inner-product-optimized TurboQuant) with annotated pseudocode.",
       "acceptanceCriteria": [
         "Create research/07-turboquant-prod-algorithm.md with LaTeX math",

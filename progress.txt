@@ -259,3 +259,31 @@ Date: 2026-03-28
 - Need to document the residual computation, norm storage, and combined dequantization
 
 ---
+
+## US-007: Document TurboQuant_prod Algorithm
+Date: 2026-03-28
+
+### What was done:
+- Created research/07-turboquant-prod-algorithm.md (1298 words, LaTeX with symbol tables)
+- Full annotated pseudocode for Algorithm 2 (setup, Quant_prod, DeQuant_prod)
+- Explained $(b-1) + 1$ bit split rationale
+- Documented storage format: indices + sign bits + norm
+- Theorem 2 proof sketch (unbiasedness + distortion bound chaining)
+- Worked example with numerical unbiasedness verification
+
+### Key learnings:
+- Distortion proof chains Theorem 1 into QJL variance: $D_{\text{prod}} \leq \frac{\pi}{2d}\|\mathbf{r}\|^2\|\mathbf{y}\|^2$
+- The factor $4^{-(b-1)} \cdot 4 = 4^{-b}$ neatly combines MSE and QJL contributions
+- Per-vector overhead is just 1 float (norm $\gamma$) — negligible for $d \geq 64$
+- At $d=128, b=3$: inner product error std dev $\approx 0.037$
+
+### Files created/modified:
+- research/07-turboquant-prod-algorithm.md (new)
+- prd.json (US-007 passes: true)
+- progress.txt (this entry)
+
+### Next story hint:
+- US-008 (Lower Bounds and Optimality) completes the research phase
+- Needs Yao's minimax, Theorem 3, and the approximation factor calculation
+
+---
