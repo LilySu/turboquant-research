@@ -226,7 +226,7 @@
       "id": "US-009",
       "title": "Research RaBitQ Core Theory: Normalization and Codebook",
       "priority": 9,
-      "passes": false,
+      "passes": true,
       "description": "Understand RaBitQ's foundational approach: normalizing vectors to unit hypersphere and constructing bi-valued codebook with random rotation.",
       "acceptanceCriteria": [
         "Create research/09-rabitq-normalization-codebook.md with LaTeX math",

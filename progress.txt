@@ -119,6 +119,37 @@ integrations/
 
 ## Story Progress
 
-(Entries will be added as stories are completed)
+## US-001 through US-008: TurboQuant Research Phase
+Date: 2026-03-28
+Status: COMPLETE (all 8 research documents created)
+
+---
+
+## US-009: Research RaBitQ Normalization & Codebook
+Date: 2026-03-29
+
+### What was done:
+- Created research/09-rabitq-normalization-codebook.md (1277 words, LaTeX with symbol tables)
+- Explained normalization to unit sphere and distance reduction formula
+- Documented bi-valued codebook $\mathcal{C} = \{+1/\sqrt{D}, -1/\sqrt{D}\}^D$ with $2^D$ unit vectors
+- Explained random rotation $P$ and connection to JL transformation
+- Compared TurboQuant vs RaBitQ approaches (rotation of data vs codebook)
+- Worked example: normalize and quantize a 4D vector
+
+### Key learnings:
+- Distance estimation reduces to inner product estimation after normalization
+- The codebook is just scaled hypercube vertices — geometrically clean and theoretically tractable
+- Random rotation is the shared foundation between TurboQuant and RaBitQ
+- TurboQuant rotates data vectors; RaBitQ rotates the codebook — mathematically equivalent
+- Elasticsearch's implementation skips rotation and uses re-ranking to compensate
+
+### Files created/modified:
+- research/09-rabitq-normalization-codebook.md (new)
+- prd.json (US-009 passes: true)
+- progress.txt (this entry)
+
+### Next story hint:
+- US-010 (RaBitQ Quantization) explains how to find the nearest codebook vector efficiently
+- Key insight: instead of searching $2^D$ vectors, compute $P^{-1}\mathbf{o}$ and take signs
 
 ---
