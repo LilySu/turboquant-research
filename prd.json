@@ -95,7 +95,7 @@
       "id": "US-005",
       "title": "Research MSE vs Inner Product Bias Problem",
       "priority": 5,
-      "passes": false,
+      "passes": true,
       "description": "Understand why MSE-optimal quantizers are biased for inner products and how the two-stage approach fixes this.",
       "acceptanceCriteria": [
         "Create research/05-mse-vs-inner-product-bias.md with LaTeX math",

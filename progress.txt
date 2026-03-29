@@ -204,3 +204,31 @@ Date: 2026-03-28
 - The $2/\pi$ bias factor from 1-bit MSE quantization is the bridge
 
 ---
+
+## US-005: Research MSE vs Inner Product Bias Problem
+Date: 2026-03-28
+
+### What was done:
+- Created research/05-mse-vs-inner-product-bias.md (1535 words, LaTeX with symbol tables)
+- Refreshers: unbiased estimators, residuals
+- Worked through 1-bit bias example completely ($2/\pi$ factor)
+- Table of bias factors for b=1,2,3,4
+- Full Algorithm 2 walkthrough with symbol tables
+- 3-step unbiasedness proof for the two-stage approach
+
+### Key learnings:
+- The $2/\pi$ factor comes from $\mathbb{E}[|V|]/\sigma = \sqrt{2/\pi}$ for half-normal distribution
+- Simple rescaling by $\pi/2$ removes bias but amplifies variance by $(\pi/2)^2 \approx 2.47$
+- The two-stage proof is elegant: QJL is unbiased for residual, and $\hat{\mathbf{x}}_{\text{mse}} + \mathbf{r} = \mathbf{x}$
+- MSE stage doesn't need to be unbiased — QJL corrects whatever remains
+
+### Files created/modified:
+- research/05-mse-vs-inner-product-bias.md (new)
+- prd.json (US-005 passes: true)
+- progress.txt (this entry)
+
+### Next story hint:
+- US-006 (TurboQuant_mse Algorithm) documents Algorithm 1 in full detail with worked examples
+- US-007 (TurboQuant_prod Algorithm) documents Algorithm 2 — builds on US-005's bias analysis
+
+---
