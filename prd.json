@@ -1,17 +1,22 @@
 {
-  "projectName": "TurboQuant Deep Research & Implementation",
-  "branchName": "feature/turboquant-implementation",
-  "description": "Deep-dive research and CUDA implementation of TurboQuant for GLM5 and DeepSeekV3.2 KV cache quantization",
+  "projectName": "TurboQuant & RaBitQ Deep Research & Implementation",
+  "branchName": "feature/turboquant-rabitq-implementation",
+  "description": "Deep-dive research into TurboQuant (KV cache) and RaBitQ (ANN search) quantization algorithms, with C++/CUDA implementation for GLM5 and DeepSeekV3.2",
   "localRepositories": {
     "glm5": "/home/lily/wsl_git/glm5",
     "deepseekv3_2": "/home/lily/wsl_git/deepseekv3_2"
   },
+  "externalReferences": {
+    "rabitq_repo": "https://github.com/gaoj0017/RaBitQ",
+    "rabitq_paper": "https://arxiv.org/pdf/2405.12497",
+    "rabitq_library": "https://vectordb-ntu.github.io/RaBitQ-Library/",
+    "turboquant_paper": "https://arxiv.org/pdf/2504.19874"
+  },
   "researchGuidelines": {
-    "targetAudience": "Someone with Calculus 3 and Linear Algebra background who is years out of practice and needs refreshers. Raw formulas without symbol definitions are NOT intuitive.",
+    "targetAudience": "Someone with Calculus 3 and Linear Algebra background who may need refreshers on specific concepts",
     "mathFormatting": "All math must be formatted in LaTeX within Markdown (inline: $...$ , display: $$...$$)",
-    "symbolDefinitions": "REQUIRED: Every display-mode formula must be followed by a 2-3 column symbol definition table (Symbol | Meaning | optional Note). This makes formulas self-contained and scannable.",
     "comprehensiveness": "Thorough coverage without verbosity. Every claim should be justified. Include refreshers on prerequisite concepts when needed.",
-    "sources": "Cite all web sources with URLs. Log every URL visited during research to Sources section. For local code analysis, reference specific file paths.",
+    "sources": "Cite all web sources with URLs. For local code analysis, reference specific file paths.",
     "outputFormat": "Markdown files in research/ directory with proper LaTeX math rendering"
   },
   "userStories": [
@@ -29,7 +34,12 @@
         "Include worked numerical example showing the bound in action",
         "Cite all sources with URLs"
       ],
-      "keyConceptsToRefresh": ["entropy", "mutual information", "probability distributions", "expectation"],
+      "keyConceptsToRefresh": [
+        "entropy",
+        "mutual information",
+        "probability distributions",
+        "expectation"
+      ],
       "dependencies": []
     },
     {
@@ -42,14 +52,21 @@
         "Create research/02-hypersphere-distributions.md with LaTeX math",
         "Refresher: What is an orthogonal matrix? Why does Qx preserve ||x||?",
         "Refresher: What is a hypersphere S^(d-1)? Visualize for d=2,3",
-        "Derive Lemma 1: fX(x) = Γ(d/2)/(√π·Γ((d-1)/2)) · (1-x²)^((d-3)/2)",
-        "Explain Gamma function Γ(z) with examples: Γ(1)=1, Γ(1/2)=√π, Γ(n)=(n-1)!",
+        "Derive Lemma 1: fX(x) = \u0393(d/2)/(\u221a\u03c0\u00b7\u0393((d-1)/2)) \u00b7 (1-x\u00b2)^((d-3)/2)",
+        "Explain Gamma function \u0393(z) with examples: \u0393(1)=1, \u0393(1/2)=\u221a\u03c0, \u0393(n)=(n-1)!",
         "Show convergence to N(0, 1/d) for large d with numerical examples",
         "Explain concentration of measure intuitively",
         "Cite all sources with URLs"
       ],
-      "keyConceptsToRefresh": ["orthogonal matrices", "unit sphere", "Gamma function", "normal distribution"],
-      "dependencies": ["US-001"]
+      "keyConceptsToRefresh": [
+        "orthogonal matrices",
+        "unit sphere",
+        "Gamma function",
+        "normal distribution"
+      ],
+      "dependencies": [
+        "US-001"
+      ]
     },
     {
       "id": "US-003",
@@ -68,8 +85,14 @@
         "Explain Panter-Dite high-resolution formula with derivation sketch",
         "Cite all sources with URLs"
       ],
-      "keyConceptsToRefresh": ["k-means clustering", "optimization", "integration"],
-      "dependencies": ["US-002"]
+      "keyConceptsToRefresh": [
+        "k-means clustering",
+        "optimization",
+        "integration"
+      ],
+      "dependencies": [
+        "US-002"
+      ]
     },
     {
       "id": "US-004",
@@ -79,17 +102,23 @@
       "description": "Understand Quantized Johnson-Lindenstrauss for 1-bit inner product quantization.",
       "acceptanceCriteria": [
         "Create research/04-qjl-transform.md with LaTeX math",
-        "Refresher: What is an inner product ⟨x,y⟩? Geometric interpretation",
+        "Refresher: What is an inner product \u27e8x,y\u27e9? Geometric interpretation",
         "Refresher: What is the Johnson-Lindenstrauss lemma? Why does random projection preserve distances?",
-        "Document Definition 1: Qqjl(x) = sign(S·x) where S has i.i.d. N(0,1) entries",
-        "Prove unbiasedness: E[⟨y, Q^(-1)(Q(x))⟩] = ⟨y,x⟩ step-by-step",
-        "Derive variance bound: Var ≤ (π/2d)·||y||²",
+        "Document Definition 1: Qqjl(x) = sign(S\u00b7x) where S has i.i.d. N(0,1) entries",
+        "Prove unbiasedness: E[\u27e8y, Q^(-1)(Q(x))\u27e9] = \u27e8y,x\u27e9 step-by-step",
+        "Derive variance bound: Var \u2264 (\u03c0/2d)\u00b7||y||\u00b2",
         "Explain why sign() preserves inner product information (intuition + math)",
         "Include reference to QJL paper (arXiv:2406.03482)",
         "Cite all sources with URLs"
       ],
-      "keyConceptsToRefresh": ["inner product", "random matrices", "expectation and variance"],
-      "dependencies": ["US-001"]
+      "keyConceptsToRefresh": [
+        "inner product",
+        "random matrices",
+        "expectation and variance"
+      ],
+      "dependencies": [
+        "US-001"
+      ]
     },
     {
       "id": "US-005",
@@ -99,16 +128,22 @@
       "description": "Understand why MSE-optimal quantizers are biased for inner products and how the two-stage approach fixes this.",
       "acceptanceCriteria": [
         "Create research/05-mse-vs-inner-product-bias.md with LaTeX math",
-        "Refresher: What does 'unbiased estimator' mean? E[θ̂] = θ",
-        "Work through the 1-bit example completely: show E[⟨y, Q^(-1)(Q(x))⟩] = (2/π)·⟨y,x⟩",
-        "Explain where the 2/π factor comes from geometrically",
+        "Refresher: What does 'unbiased estimator' mean? E[\u03b8\u0302] = \u03b8",
+        "Work through the 1-bit example completely: show E[\u27e8y, Q^(-1)(Q(x))\u27e9] = (2/\u03c0)\u00b7\u27e8y,x\u27e9",
+        "Explain where the 2/\u03c0 factor comes from geometrically",
         "Show how bias decreases with higher bit-widths (table of bias factors)",
         "Explain the two-stage solution: MSE(b-1) + QJL(1) on residual",
         "Prove why this combination is unbiased",
         "Cite all sources with URLs"
       ],
-      "keyConceptsToRefresh": ["bias in estimation", "residuals"],
-      "dependencies": ["US-003", "US-004"]
+      "keyConceptsToRefresh": [
+        "bias in estimation",
+        "residuals"
+      ],
+      "dependencies": [
+        "US-003",
+        "US-004"
+      ]
     },
     {
       "id": "US-006",
@@ -121,14 +156,20 @@
         "Annotated pseudocode for Algorithm 1 with explanation of each line",
         "Explain rotation matrix generation via QR decomposition",
         "Refresher: What is QR decomposition? Why does it give orthogonal Q?",
-        "Document Quant_mse procedure: rotate → find nearest centroids → store indices",
-        "Document DeQuant_mse procedure: lookup centroids → rotate back",
+        "Document Quant_mse procedure: rotate \u2192 find nearest centroids \u2192 store indices",
+        "Document DeQuant_mse procedure: lookup centroids \u2192 rotate back",
         "Walk through Theorem 1 proof (distortion bound) step-by-step",
         "Include worked example: quantize a specific vector x with b=2 bits",
         "Cite all sources with URLs"
       ],
-      "keyConceptsToRefresh": ["QR decomposition", "matrix-vector multiplication"],
-      "dependencies": ["US-002", "US-003"]
+      "keyConceptsToRefresh": [
+        "QR decomposition",
+        "matrix-vector multiplication"
+      ],
+      "dependencies": [
+        "US-002",
+        "US-003"
+      ]
     },
     {
       "id": "US-007",
@@ -147,8 +188,14 @@
         "Include worked example: quantize a vector and verify unbiasedness numerically",
         "Cite all sources with URLs"
       ],
-      "keyConceptsToRefresh": ["residuals", "composition of estimators"],
-      "dependencies": ["US-005", "US-006"]
+      "keyConceptsToRefresh": [
+        "residuals",
+        "composition of estimators"
+      ],
+      "dependencies": [
+        "US-005",
+        "US-006"
+      ]
     },
     {
       "id": "US-008",
@@ -161,129 +208,210 @@
         "Refresher: What is Yao's minimax principle? Relate randomized algorithms to distributions",
         "Document Theorem 3 (lower bounds) with full proof",
         "Show the connection to Shannon Lower Bound from US-001",
-        "Calculate the approximation factor: TurboQuant achieves ≈2.7× optimal",
+        "Calculate the approximation factor: TurboQuant achieves \u22482.7\u00d7 optimal",
         "Create table comparing TurboQuant distortion to lower bound for b=1,2,3,4,5",
         "Explain why the gap is smaller at lower bit-widths",
         "Cite all sources with URLs"
       ],
-      "keyConceptsToRefresh": ["minimax theory", "lower bounds in algorithms"],
-      "dependencies": ["US-006", "US-007"]
+      "keyConceptsToRefresh": [
+        "minimax theory",
+        "lower bounds in algorithms"
+      ],
+      "dependencies": [
+        "US-006",
+        "US-007"
+      ]
     },
     {
       "id": "US-009",
-      "title": "Set Up CUDA Development Environment",
+      "title": "Research RaBitQ Core Theory: Normalization and Codebook",
       "priority": 9,
       "passes": false,
-      "description": "Set up CUDA environment for TurboQuant implementation.",
+      "description": "Understand RaBitQ's foundational approach: normalizing vectors to unit hypersphere and constructing bi-valued codebook with random rotation.",
       "acceptanceCriteria": [
-        "Create src/ directory with CMake build system",
-        "CUDA toolkit 12.x configured",
-        "cuBLAS and cuRAND linked",
-        "Simple test kernel compiles and runs",
-        "Google Test or similar for unit testing",
-        "Document setup in src/README.md"
+        "Create research/09-rabitq-normalization-codebook.md with LaTeX math",
+        "Refresher: Why normalize vectors? Centroid-based normalization",
+        "Derive the distance reduction formula: ||o_r - q_r||\u00b2 = ||o_r - c||\u00b2 + ||q_r - c||\u00b2 - 2\u00b7||o_r - c||\u00b7||q_r - c||\u00b7\u27e8o,q\u27e9",
+        "Explain the bi-valued codebook C = {+1/\u221aD, -1/\u221aD}^D",
+        "Why does C have exactly 2^D vectors? Why are they unit vectors?",
+        "Explain random orthogonal rotation P and C_rand = {Px | x \u2208 C}",
+        "Connection to Johnson-Lindenstrauss transformation",
+        "Why rotation removes preference for specific vectors (geometric intuition)",
+        "Include worked example: normalize a 4D vector, show codebook structure",
+        "Cite RaBitQ paper (arXiv:2405.12497) and all sources with URLs"
       ],
-      "dependencies": []
+      "keyConceptsToRefresh": [
+        "unit vectors",
+        "centroid",
+        "orthogonal matrices",
+        "hypercube vertices"
+      ],
+      "dependencies": [
+        "US-002",
+        "US-004"
+      ]
     },
     {
       "id": "US-010",
-      "title": "Implement Random Rotation Matrix Generation",
+      "title": "Research RaBitQ Quantization: Finding Nearest Codebook Vector",
       "priority": 10,
       "passes": false,
-      "description": "Generate random orthogonal rotation matrices on GPU.",
+      "description": "Understand how RaBitQ efficiently finds the nearest codebook vector and stores it as a D-bit string.",
       "acceptanceCriteria": [
-        "Create src/rotation.cu and src/rotation.cuh",
-        "Generate random matrix with i.i.d. N(0,1) entries using cuRAND",
-        "Implement QR decomposition for orthogonal matrix (use cuSOLVER or custom)",
-        "Unit tests verify: Π·Π^T = I (within numerical tolerance)",
-        "Benchmark rotation generation time",
-        "Document in src/rotation.md"
+        "Create research/10-rabitq-quantization.md with LaTeX math",
+        "Derive: x\u0304 = argmax_{x\u2208C} \u27e8o, Px\u27e9 = argmax_{x\u2208C} \u27e8P\u207b\u00b9o, x\u27e9",
+        "Explain why we inverse-transform the data vector instead of transforming the codebook",
+        "Show that optimal x\u0304 has signs matching signs of P\u207b\u00b9o",
+        "Explain the D-bit string representation x\u0304_b \u2208 {0,1}^D",
+        "Relationship: x\u0304 = (2x\u0304_b - 1_D)/\u221aD",
+        "Document what is stored: quantization code x\u0304_b, precomputed ||o_r - c|| and \u27e8\u014d,o\u27e9",
+        "Include worked example: quantize a specific unit vector step-by-step",
+        "Cite all sources with URLs"
       ],
-      "dependencies": ["US-009"]
+      "keyConceptsToRefresh": [
+        "argmax",
+        "sign function",
+        "bit string representation"
+      ],
+      "dependencies": [
+        "US-009"
+      ]
     },
     {
       "id": "US-011",
-      "title": "Implement Codebook Generation",
+      "title": "Research RaBitQ Unbiased Estimator and Error Bound",
       "priority": 11,
       "passes": false,
-      "description": "Precompute optimal Lloyd-Max codebooks for Beta distributions.",
+      "description": "Understand RaBitQ's unbiased inner product estimator and its sharp theoretical error bound.",
       "acceptanceCriteria": [
-        "Create src/codebook.cu and src/codebook.cuh",
-        "Implement numerical solver for Equation 4 (k-means on Beta distribution)",
-        "Generate codebooks for b=1,2,3,4,5,6,7,8 bits",
-        "Codebooks match paper values (verify against US-003 research)",
-        "Store as compile-time constants or LUT",
-        "Handle different dimensions d (codebooks depend on d for finite d)",
-        "Document in src/codebook.md"
+        "Create research/11-rabitq-estimator-error-bound.md with LaTeX math",
+        "Derive the geometric relationship (Lemma 3.1): \u27e8\u014d,q\u27e9 = \u27e8\u014d,o\u27e9\u00b7\u27e8o,q\u27e9 + \u27e8\u014d,e\u2081\u27e9\u00b7\u221a(1-\u27e8o,q\u27e9\u00b2)",
+        "Explain e\u2081 = (q - \u27e8q,o\u27e9o)/||q - \u27e8q,o\u27e9o|| geometrically",
+        "Prove unbiasedness: E[\u27e8\u014d,q\u27e9/\u27e8\u014d,o\u27e9] = \u27e8o,q\u27e9 (Theorem 3.2)",
+        "Why E[\u27e8\u014d,o\u27e9] \u2248 0.8 and E[\u27e8\u014d,e\u2081\u27e9] = 0?",
+        "Document the error bound: |\u27e8\u014d,q\u27e9/\u27e8\u014d,o\u27e9 - \u27e8o,q\u27e9| = O(1/\u221aD) with high probability",
+        "Explain why this is asymptotically optimal (matches lower bound)",
+        "Contrast with PQ: why simply using \u27e8\u014d,q\u27e9 \u2248 \u27e8o,q\u27e9 is BIASED",
+        "Include numerical verification: sample P many times, plot \u27e8\u014d,o\u27e9 and \u27e8\u014d,e\u2081\u27e9 distributions",
+        "Cite all sources with URLs"
       ],
-      "dependencies": ["US-009", "US-003"]
+      "keyConceptsToRefresh": [
+        "unbiased estimator",
+        "concentration inequalities",
+        "asymptotic optimality"
+      ],
+      "dependencies": [
+        "US-010"
+      ]
     },
     {
       "id": "US-012",
-      "title": "Implement TurboQuant_mse CUDA Kernel",
+      "title": "Research RaBitQ Query Quantization and Efficient Computation",
       "priority": 12,
       "passes": false,
-      "description": "Implement MSE-optimized quantization CUDA kernel.",
+      "description": "Understand how RaBitQ quantizes query vectors and computes distances efficiently using bitwise operations.",
       "acceptanceCriteria": [
-        "Create src/turboquant_mse.cu and src/turboquant_mse.cuh",
-        "Implement y = Π·x matrix-vector multiply (use cuBLAS)",
-        "Implement vectorized nearest-centroid lookup",
-        "Implement dequantization x̃ = Π^T·ỹ",
-        "Unit tests verify MSE matches theoretical bounds from US-006",
-        "Benchmark throughput (vectors/second)",
-        "Document in src/turboquant_mse.md"
+        "Create research/12-rabitq-query-computation.md with LaTeX math",
+        "Explain query transformation: q' = P\u207b\u00b9q",
+        "Document uniform scalar quantization of q' to B_q-bit unsigned integers",
+        "Explain randomized rounding: q\u0304_u[i] = floor((q'[i] - v_l)/\u0394 + u_i)",
+        "Prove Theorem 3.3: B_q = \u0398(log log D) suffices for negligible error",
+        "Why B_q = 4 is sufficient in practice",
+        "Derive the efficient computation formula:",
+        "  \u27e8x\u0304,q\u0304\u27e9 = (2\u0394/\u221aD)\u00b7\u27e8x\u0304_b, q\u0304_u\u27e9 + (2v_l/\u221aD)\u00b7\u03a3x\u0304_b[i] - (\u0394/\u221aD)\u00b7\u03a3q\u0304_u[i] - \u221aD\u00b7v_l",
+        "Explain bitwise decomposition: \u27e8x\u0304_b, q\u0304_u\u27e9 = \u03a3_{j=0}^{B_q-1} 2^j \u00b7 \u27e8x\u0304_b, q\u0304_u^(j)\u27e9",
+        "Show how inner product of binary vectors \u2192 bitwise AND + popcount",
+        "Include worked example: compute \u27e8\u014d,q\u27e9 for specific vectors",
+        "Cite all sources with URLs"
       ],
-      "dependencies": ["US-010", "US-011", "US-006"]
+      "keyConceptsToRefresh": [
+        "uniform quantization",
+        "bitwise operations",
+        "popcount"
+      ],
+      "dependencies": [
+        "US-011"
+      ]
     },
     {
       "id": "US-013",
-      "title": "Implement QJL CUDA Kernel",
+      "title": "Research RaBitQ SIMD FastScan Implementation",
       "priority": 13,
       "passes": false,
-      "description": "Implement 1-bit QJL transform for residual quantization.",
+      "description": "Understand RaBitQ's SIMD-based batch distance computation using FastScan technique.",
       "acceptanceCriteria": [
-        "Create src/qjl.cu and src/qjl.cuh",
-        "Implement sign(S·r) computation efficiently",
-        "Implement dequantization √(π/2)/d · S^T · z",
-        "Handle norm storage ||r||",
-        "Unit tests verify unbiasedness (average error ≈ 0 over many samples)",
-        "Benchmark throughput",
-        "Document in src/qjl.md"
+        "Create research/13-rabitq-fastscan-simd.md with LaTeX math",
+        "Explain why batch processing enables SIMD optimization",
+        "Document the LUT (Look-Up Table) approach: split D-bit string into D/4 sub-segments",
+        "Each LUT has 2^4 = 16 entries for inner products with 4-bit patterns",
+        "Explain packing 32 quantization codes in a batch",
+        "How AVX2 256-bit registers host two LUTs",
+        "Document shuffle instruction for parallel lookup",
+        "Compare efficiency: bitwise (single vector) vs SIMD (batch)",
+        "Reference PQx4fs implementation strategy",
+        "Include diagram: LUT structure and SIMD register layout",
+        "Cite all sources with URLs"
       ],
-      "dependencies": ["US-010", "US-004"]
+      "keyConceptsToRefresh": [
+        "SIMD",
+        "AVX2",
+        "shuffle instruction",
+        "look-up tables"
+      ],
+      "dependencies": [
+        "US-012"
+      ]
     },
     {
       "id": "US-014",
-      "title": "Implement TurboQuant_prod CUDA Kernel",
+      "title": "Research RaBitQ with IVF Index Integration",
       "priority": 14,
       "passes": false,
-      "description": "Implement full inner-product-optimized quantization.",
+      "description": "Understand how RaBitQ integrates with Inverted File (IVF) index for ANN search.",
       "acceptanceCriteria": [
-        "Create src/turboquant_prod.cu and src/turboquant_prod.cuh",
-        "Compose TurboQuant_mse (b-1 bits) + QJL (1 bit)",
-        "Compute and store residual norm",
-        "Implement combined dequantization",
-        "Unit tests verify inner product distortion bounds from US-007",
-        "Document in src/turboquant_prod.md"
+        "Create research/14-rabitq-ivf-integration.md with LaTeX math",
+        "Explain IVF structure: cluster data vectors with KMeans, build bucket per cluster",
+        "Document per-cluster normalization: use cluster centroid for normalization",
+        "Explain query phase: select N_probe nearest clusters, search within each",
+        "Document error-bound-based re-ranking (unique to RaBitQ)",
+        "Why PQ needs empirical re-rank threshold but RaBitQ uses theoretical bounds",
+        "Compare: IVF-PQ vs IVF-RaBitQ workflow",
+        "Document the complete search algorithm (Algorithm 2 from paper)",
+        "Explain parameters: N_probe, k (top-k), \u03b5\u2080 (confidence)",
+        "Include performance comparison table from paper",
+        "Cite all sources with URLs"
       ],
-      "dependencies": ["US-012", "US-013", "US-007"]
+      "keyConceptsToRefresh": [
+        "inverted index",
+        "KMeans clustering",
+        "re-ranking"
+      ],
+      "dependencies": [
+        "US-013"
+      ]
     },
     {
       "id": "US-015",
-      "title": "Implement Fused Attention Kernel",
+      "title": "Analyze RaBitQ Reference Implementation (search.cpp)",
       "priority": 15,
       "passes": false,
-      "description": "Create fused attention kernel with TurboQuant KV cache.",
+      "description": "Study the RaBitQ reference C++ implementation to understand practical details.",
       "acceptanceCriteria": [
-        "Create src/attention_turboquant.cu",
-        "Quantize-on-write for K, V vectors",
-        "Dequantize-on-read for attention computation",
-        "FlashAttention-style memory access patterns",
-        "Handle different head dimensions (64, 128, 256)",
-        "Benchmark vs baseline attention",
-        "Document in src/attention_turboquant.md"
+        "Create research/15-rabitq-implementation-analysis.md",
+        "Fetch and analyze https://github.com/gaoj0017/RaBitQ/blob/main/src/search.cpp",
+        "Document the IVFRN class structure and key methods",
+        "Explain the search() function workflow",
+        "Document getRatio() and result heap usage",
+        "Analyze the rotation: RandQ = mul(RandQ, P)",
+        "Document precomputed values: transformation matrix P, ||o_r - c||, \u27e8\u014d,o\u27e9",
+        "Explain FAST_SCAN vs SCAN compilation modes",
+        "Document Eigen library usage for matrix operations",
+        "Include annotated code snippets with explanations",
+        "Cite all sources with URLs"
       ],
-      "dependencies": ["US-014"]
+      "dependencies": [
+        "US-014"
+      ]
     },
     {
       "id": "US-016",
@@ -293,14 +421,14 @@
       "description": "Study the local GLM5 repository to understand its KV cache structure.",
       "localPath": "/home/lily/wsl_git/glm5",
       "acceptanceCriteria": [
-        "Create research/09-glm5-kv-cache.md",
+        "Create research/16-glm5-kv-cache.md",
         "READ the actual code in /home/lily/wsl_git/glm5 - do NOT just web search",
         "Document the directory structure and key files",
         "Find and document KV cache tensor shapes: [batch, heads, seq_len, head_dim]",
         "Identify the attention implementation file(s) with exact paths",
         "Document how K and V are stored, accessed, and evicted",
         "Identify any existing quantization or compression code",
-        "Identify exact hook points for TurboQuant integration",
+        "Identify exact hook points for TurboQuant/RaBitQ integration",
         "Include code snippets from the actual repository",
         "Document model config: num_layers, num_heads, head_dim, etc."
       ],
@@ -315,14 +443,14 @@
       "description": "Study the local DeepSeekV3.2 repository to understand its KV cache and MLA structure.",
       "localPath": "/home/lily/wsl_git/deepseekv3_2",
       "acceptanceCriteria": [
-        "Create research/10-deepseek-kv-cache.md",
+        "Create research/17-deepseek-kv-cache.md",
         "READ the actual code in /home/lily/wsl_git/deepseekv3_2 - do NOT just web search",
         "Document the directory structure and key files",
         "Document MLA (Multi-head Latent Attention) structure from the actual code",
         "Explain how MLA differs from standard MHA (with code references)",
         "Document existing compression mechanisms in the codebase",
         "Find KV cache implementation with exact file paths",
-        "Identify how TurboQuant would complement MLA's latent compression",
+        "Identify how TurboQuant/RaBitQ would complement MLA's latent compression",
         "Include code snippets from the actual repository",
         "Document model config: num_layers, num_heads, head_dim, latent_dim, etc."
       ],
@@ -331,8 +459,198 @@
     },
     {
       "id": "US-018",
-      "title": "Integrate TurboQuant with GLM5",
+      "title": "Set Up C++ Development Environment with Eigen",
       "priority": 18,
+      "passes": false,
+      "description": "Set up C++ development environment matching RaBitQ reference implementation.",
+      "acceptanceCriteria": [
+        "Create src/ directory with CMake build system",
+        "Download and configure Eigen 3.4.0 library",
+        "Set up AVX2 compilation flags (-Ofast -march=core-avx2)",
+        "Create basic matrix multiplication test with Eigen",
+        "Verify SIMD instructions are being used (check assembly)",
+        "Set up Google Test for unit testing",
+        "Document setup in src/README.md",
+        "Create src/defines.hpp with common type definitions"
+      ],
+      "dependencies": [
+        "US-015"
+      ]
+    },
+    {
+      "id": "US-019",
+      "title": "Implement Random Orthogonal Matrix Generation",
+      "priority": 19,
+      "passes": false,
+      "description": "Generate random orthogonal transformation matrices for RaBitQ.",
+      "acceptanceCriteria": [
+        "Create src/rotation.hpp and src/rotation.cpp",
+        "Generate random matrix with i.i.d. N(0,1) entries",
+        "Implement QR decomposition using Eigen's HouseholderQR",
+        "Extract orthogonal Q matrix from QR decomposition",
+        "Unit tests verify: P\u00b7P^T = I (within numerical tolerance 1e-6)",
+        "Unit tests verify: det(P) = \u00b11 (orthogonal)",
+        "Benchmark matrix generation time for D = 128, 256, 512, 960",
+        "Document in src/rotation.md"
+      ],
+      "dependencies": [
+        "US-018",
+        "US-009"
+      ]
+    },
+    {
+      "id": "US-020",
+      "title": "Implement RaBitQ Data Quantization (Index Phase)",
+      "priority": 20,
+      "passes": false,
+      "description": "Implement the index phase: normalize vectors and compute quantization codes.",
+      "acceptanceCriteria": [
+        "Create src/rabitq_index.hpp and src/rabitq_index.cpp",
+        "Implement centroid computation for normalization",
+        "Implement vector normalization: o = (o_r - c)/||o_r - c||",
+        "Implement quantization: compute P\u207b\u00b9o, extract signs as D-bit string",
+        "Precompute and store: ||o_r - c||, \u27e8\u014d,o\u27e9, x\u0304_b",
+        "Unit tests verify quantization code reconstruction",
+        "Unit tests verify \u27e8\u014d,o\u27e9 \u2248 0.8 on average",
+        "Benchmark indexing throughput (vectors/second)",
+        "Document in src/rabitq_index.md"
+      ],
+      "dependencies": [
+        "US-019",
+        "US-010"
+      ]
+    },
+    {
+      "id": "US-021",
+      "title": "Implement RaBitQ Query Processing",
+      "priority": 21,
+      "passes": false,
+      "description": "Implement query transformation and uniform scalar quantization.",
+      "acceptanceCriteria": [
+        "Create src/rabitq_query.hpp and src/rabitq_query.cpp",
+        "Implement query normalization: q = (q_r - c)/||q_r - c||",
+        "Implement inverse transformation: q' = P\u207b\u00b9q",
+        "Implement uniform scalar quantization with B_q = 4 bits",
+        "Implement randomized rounding for unbiasedness",
+        "Precompute: v_l, v_r, \u0394, \u03a3q\u0304_u[i]",
+        "Unit tests verify quantization range coverage",
+        "Document in src/rabitq_query.md"
+      ],
+      "dependencies": [
+        "US-020",
+        "US-012"
+      ]
+    },
+    {
+      "id": "US-022",
+      "title": "Implement RaBitQ Bitwise Distance Computation",
+      "priority": 22,
+      "passes": false,
+      "description": "Implement efficient distance estimation using bitwise operations.",
+      "acceptanceCriteria": [
+        "Create src/rabitq_distance.hpp and src/rabitq_distance.cpp",
+        "Implement bitwise decomposition of q\u0304_u into B_q binary vectors",
+        "Implement inner product via AND + popcount",
+        "Implement full estimator: \u27e8\u014d,q\u27e9/\u27e8\u014d,o\u27e9",
+        "Implement distance computation from inner product estimator",
+        "Unit tests verify unbiasedness: average error \u2248 0 over 10000 samples",
+        "Unit tests verify error bound: |error| < \u03b5\u2080/\u221a(D-1) with probability \u2265 0.95",
+        "Benchmark throughput for single-vector distance",
+        "Document in src/rabitq_distance.md"
+      ],
+      "dependencies": [
+        "US-021",
+        "US-011"
+      ]
+    },
+    {
+      "id": "US-023",
+      "title": "Implement RaBitQ SIMD FastScan",
+      "priority": 23,
+      "passes": false,
+      "description": "Implement batch distance computation using AVX2 SIMD instructions.",
+      "acceptanceCriteria": [
+        "Create src/rabitq_fastscan.hpp and src/rabitq_fastscan.cpp",
+        "Implement LUT construction for 4-bit sub-segments",
+        "Implement 32-code batch packing and layout reorganization",
+        "Implement AVX2 shuffle-based LUT lookup",
+        "Implement batch distance estimation for 32 vectors at once",
+        "Unit tests verify results match bitwise implementation",
+        "Benchmark throughput: FastScan vs bitwise",
+        "Target: FastScan \u2265 3x faster than bitwise for batches",
+        "Document in src/rabitq_fastscan.md"
+      ],
+      "dependencies": [
+        "US-022",
+        "US-013"
+      ]
+    },
+    {
+      "id": "US-024",
+      "title": "Implement IVF Index Structure",
+      "priority": 24,
+      "passes": false,
+      "description": "Implement Inverted File index for coarse partitioning.",
+      "acceptanceCriteria": [
+        "Create src/ivf.hpp and src/ivf.cpp",
+        "Implement KMeans clustering for bucket creation",
+        "Implement bucket assignment for data vectors",
+        "Implement per-bucket RaBitQ quantization",
+        "Implement cluster probe: find N_probe nearest centroids to query",
+        "Implement index serialization (save/load)",
+        "Unit tests verify bucket assignment correctness",
+        "Document in src/ivf.md"
+      ],
+      "dependencies": [
+        "US-020"
+      ]
+    },
+    {
+      "id": "US-025",
+      "title": "Implement RaBitQ Search with IVF",
+      "priority": 25,
+      "passes": false,
+      "description": "Implement complete ANN search combining IVF and RaBitQ.",
+      "acceptanceCriteria": [
+        "Create src/ivf_rabitq.hpp and src/ivf_rabitq.cpp",
+        "Implement search() function matching reference implementation",
+        "Implement error-bound-based re-ranking",
+        "Implement result heap for top-k maintenance",
+        "Support both SCAN and FAST_SCAN modes",
+        "Unit tests verify recall on synthetic data",
+        "Benchmark QPS (queries per second)",
+        "Document in src/ivf_rabitq.md"
+      ],
+      "dependencies": [
+        "US-023",
+        "US-024",
+        "US-014"
+      ]
+    },
+    {
+      "id": "US-026",
+      "title": "Benchmark RaBitQ vs Paper Results",
+      "priority": 26,
+      "passes": false,
+      "description": "Validate implementation against paper benchmarks.",
+      "acceptanceCriteria": [
+        "Create benchmarks/rabitq-validation.md",
+        "Download SIFT1M dataset for testing",
+        "Measure average relative error on distance estimation",
+        "Measure maximum relative error on distance estimation",
+        "Compare to Table in paper (should match within 5%)",
+        "Measure recall@100 at various N_probe settings",
+        "Generate time-accuracy trade-off plots",
+        "Document any discrepancies from paper results"
+      ],
+      "dependencies": [
+        "US-025"
+      ]
+    },
+    {
+      "id": "US-027",
+      "title": "Integrate TurboQuant with GLM5",
+      "priority": 27,
       "passes": false,
       "description": "Integrate TurboQuant into GLM5's inference pipeline based on US-016 analysis.",
       "localPath": "/home/lily/wsl_git/glm5",
@@ -346,12 +664,15 @@
         "Test: Basic generation produces coherent output",
         "Document integration in integrations/glm5/README.md"
       ],
-      "dependencies": ["US-015", "US-016"]
+      "dependencies": [
+        "US-016",
+        "US-007"
+      ]
     },
     {
-      "id": "US-019",
+      "id": "US-028",
       "title": "Integrate TurboQuant with DeepSeekV3.2",
-      "priority": 19,
+      "priority": 28,
       "passes": false,
       "description": "Integrate TurboQuant into DeepSeekV3.2 inference based on US-017 analysis.",
       "localPath": "/home/lily/wsl_git/deepseekv3_2",
@@ -364,95 +685,53 @@
         "Test: Basic generation produces coherent output",
         "Document integration in integrations/deepseek/README.md"
       ],
-      "dependencies": ["US-015", "US-017"]
+      "dependencies": [
+        "US-017",
+        "US-007"
+      ]
     },
     {
-      "id": "US-020",
-      "title": "Benchmark Distortion vs Paper",
-      "priority": 20,
+      "id": "US-029",
+      "title": "Run End-to-End Evaluation",
+      "priority": 29,
       "passes": false,
-      "description": "Validate distortion metrics match paper results.",
+      "description": "Validate full system on real benchmarks.",
       "acceptanceCriteria": [
-        "Create benchmarks/distortion-validation.md",
-        "Download or generate test embeddings (e.g., random unit vectors)",
-        "Measure MSE for b=1,2,3,4 bits",
-        "Measure inner product distortion",
-        "Compare to theoretical bounds from US-006, US-007, US-008",
-        "Results within 5% of paper values",
-        "Generate comparison plots (can use matplotlib)",
+        "Create benchmarks/end-to-end-results.md",
+        "Set up Needle-in-Haystack evaluation for TurboQuant",
+        "Set up ANN benchmark for RaBitQ (SIFT1M, GIST, DEEP)",
+        "Measure recall, latency, and memory usage",
+        "Compare TurboQuant vs paper claims",
+        "Compare RaBitQ vs PQ baseline",
+        "Generate comprehensive comparison tables and plots",
         "Document methodology and results"
       ],
-      "dependencies": ["US-014"]
+      "dependencies": [
+        "US-026",
+        "US-027",
+        "US-028"
+      ]
     },
     {
-      "id": "US-021",
-      "title": "Run Needle-in-Haystack Benchmark",
-      "priority": 21,
-      "passes": false,
-      "description": "Validate KV cache quantization on the NIAH benchmark.",
-      "acceptanceCriteria": [
-        "Create benchmarks/niah-results.md",
-        "Set up NIAH evaluation following paper methodology",
-        "Test at context lengths: 4k, 8k, 16k, 32k, 64k (as hardware allows)",
-        "Test at 4x compression ratio (4 bits effective)",
-        "Target: Score ≥ 0.99 matching paper",
-        "Generate comparison plot with baselines if available",
-        "Document any discrepancies from paper results"
-      ],
-      "dependencies": ["US-018"]
-    },
-    {
-      "id": "US-022",
-      "title": "Run LongBench-E Evaluation",
-      "priority": 22,
-      "passes": false,
-      "description": "Validate on LongBench-E end-to-end generation.",
-      "acceptanceCriteria": [
-        "Create benchmarks/longbench-results.md",
-        "Set up LongBench-E evaluation",
-        "Test TurboQuant at 2.5-bit and 3.5-bit (with outlier handling)",
-        "Measure scores across task categories",
-        "Target: Scores within 1% of full precision",
-        "Generate comparison table",
-        "Document methodology and any issues"
-      ],
-      "dependencies": ["US-018"]
-    },
-    {
-      "id": "US-023",
-      "title": "Optimize CUDA Kernels for Production",
-      "priority": 23,
-      "passes": false,
-      "description": "Profile and optimize CUDA implementation.",
-      "acceptanceCriteria": [
-        "Create benchmarks/performance-optimization.md",
-        "Profile with Nsight Compute (or nvprof)",
-        "Identify memory bandwidth bottlenecks",
-        "Optimize memory access patterns (coalescing)",
-        "Reduce register pressure if needed",
-        "Document throughput (tokens/second or vectors/second)",
-        "Document latency overhead vs unquantized",
-        "Verify 4-5x memory savings",
-        "List remaining optimization opportunities"
-      ],
-      "dependencies": ["US-020", "US-021", "US-022"]
-    },
-    {
-      "id": "US-024",
+      "id": "US-030",
       "title": "Create Documentation and Examples",
-      "priority": 24,
+      "priority": 30,
       "passes": false,
       "description": "Create comprehensive documentation for users.",
       "acceptanceCriteria": [
         "Complete README.md with quick start guide",
         "Create docs/installation.md with tested instructions",
-        "Create docs/api.md documenting public functions",
+        "Create docs/turboquant-api.md documenting TurboQuant functions",
+        "Create docs/rabitq-api.md documenting RaBitQ functions",
         "Create examples/glm5_example.py with working code",
         "Create examples/deepseek_example.py with working code",
+        "Create examples/rabitq_ann_example.cpp with working code",
         "Add docs/troubleshooting.md with common issues",
         "Ensure all code examples actually run"
       ],
-      "dependencies": ["US-023"]
+      "dependencies": [
+        "US-029"
+      ]
     }
   ]
 }

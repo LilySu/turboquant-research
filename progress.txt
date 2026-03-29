@@ -1,13 +1,12 @@
-# TurboQuant Research & Implementation Progress Log
+# TurboQuant & RaBitQ Research & Implementation Progress Log
 
 ## Project Context
 
-This project implements TurboQuant, a near-optimal vector quantization algorithm for KV cache compression in LLMs. The goal is to:
+This project implements two state-of-the-art vector quantization algorithms:
 
-1. Deeply understand the theoretical foundations (Shannon, Lloyd-Max, QJL)
-2. Implement TurboQuant in CUDA with production-grade efficiency
-3. Integrate with GLM5 and DeepSeekV3.2
-4. Validate against paper benchmarks
+1. **TurboQuant** (US-001 to US-008): Near-optimal VQ for KV cache compression in LLMs
+2. **RaBitQ** (US-009 to US-015, US-018 to US-026): Randomized Bit Quantization for ANN search with theoretical error bounds
+3. **Integration** (US-016, US-017, US-027, US-028): GLM5 and DeepSeekV3.2 KV cache integration
 
 ## Local Repositories
 
@@ -15,6 +14,18 @@ This project implements TurboQuant, a near-optimal vector quantization algorithm
 - **DeepSeekV3.2**: `/home/lily/wsl_git/deepseekv3_2`
 
 These should be analyzed directly - read the code, don't just web search.
+
+## External References
+
+### RaBitQ
+- **Paper**: https://arxiv.org/pdf/2405.12497
+- **GitHub**: https://github.com/gaoj0017/RaBitQ
+- **Library**: https://vectordb-ntu.github.io/RaBitQ-Library/
+- **Extended RaBitQ (SIGMOD 2025)**: https://github.com/VectorDB-NTU/Extended-RaBitQ
+
+### TurboQuant
+- **Paper**: https://arxiv.org/pdf/2504.19874
+- **QJL Paper**: https://arxiv.org/abs/2406.03482
 
 ## Research Document Standards
 
@@ -34,6 +45,26 @@ These should be analyzed directly - read the code, don't just web search.
 - All sources cited with URLs or file paths
 - Prerequisites refreshed before diving deep
 
+## RaBitQ Key Concepts Summary
+
+### Core Algorithm
+1. **Normalize** data vectors to unit hypersphere (centered on centroid)
+2. **Codebook** is 2^D bi-valued vectors: C = {±1/√D}^D
+3. **Random rotation** P converts C to C_rand = {Px | x ∈ C}
+4. **Quantize** by finding nearest: signs of P⁻¹o give D-bit code
+5. **Estimate** inner product: ⟨ō,q⟩/⟨ō,o⟩ is UNBIASED
+6. **Error bound**: O(1/√D) with high probability (asymptotically optimal)
+
+### Key Differences from PQ
+- PQ uses ⟨ō,q⟩ ≈ ⟨o,q⟩ which is BIASED
+- RaBitQ divides by ⟨ō,o⟩ to correct bias
+- RaBitQ has theoretical error bounds; PQ does not
+- RaBitQ uses bitwise operations; PQ uses LUT lookups
+
+### Efficient Computation
+- **Bitwise**: AND + popcount for single vectors
+- **FastScan**: SIMD with 4-bit LUT for batch of 32 vectors
+
 ## Codebase Patterns
 
 (This section will be populated as patterns are discovered)
@@ -42,21 +73,36 @@ These should be analyzed directly - read the code, don't just web search.
 All research docs go in `research/` with format `XX-topic-name.md`:
 ```
 research/
-├── 01-shannon-source-coding.md
-├── 02-hypersphere-distributions.md
-├── 03-lloyd-max-quantization.md
-├── ...
+├── 01-shannon-source-coding.md       # TurboQuant theory
+├── 02-hypersphere-distributions.md   # Shared foundation
+├── 03-lloyd-max-quantization.md      # TurboQuant theory
+├── 04-qjl-transform.md               # Shared foundation
+├── 05-mse-vs-inner-product-bias.md   # TurboQuant theory
+├── 06-turboquant-mse-algorithm.md    # TurboQuant algorithm
+├── 07-turboquant-prod-algorithm.md   # TurboQuant algorithm
+├── 08-lower-bounds-optimality.md     # Shared theory
+├── 09-rabitq-normalization-codebook.md  # RaBitQ theory
+├── 10-rabitq-quantization.md         # RaBitQ theory
+├── 11-rabitq-estimator-error-bound.md   # RaBitQ theory
+├── 12-rabitq-query-computation.md    # RaBitQ theory
+├── 13-rabitq-fastscan-simd.md        # RaBitQ implementation
+├── 14-rabitq-ivf-integration.md      # RaBitQ application
+├── 15-rabitq-implementation-analysis.md # Code analysis
+├── 16-glm5-kv-cache.md               # Model analysis
+└── 17-deepseek-kv-cache.md           # Model analysis
 ```
 
-### CUDA Code Structure
+### C++ Code Structure (RaBitQ Implementation)
 ```
 src/
-├── rotation.cu / rotation.cuh
-├── codebook.cu / codebook.cuh
-├── turboquant_mse.cu / turboquant_mse.cuh
-├── qjl.cu / qjl.cuh
-├── turboquant_prod.cu / turboquant_prod.cuh
-├── attention_turboquant.cu
+├── defines.hpp           # Common type definitions
+├── rotation.hpp/.cpp     # Random orthogonal matrix generation
+├── rabitq_index.hpp/.cpp # Index phase quantization
+├── rabitq_query.hpp/.cpp # Query processing
+├── rabitq_distance.hpp/.cpp # Distance computation (bitwise)
+├── rabitq_fastscan.hpp/.cpp # SIMD batch distance
+├── ivf.hpp/.cpp          # Inverted file index
+├── ivf_rabitq.hpp/.cpp   # Combined IVF + RaBitQ search
 └── README.md
 ```
 
@@ -71,247 +117,8 @@ integrations/
     └── README.md
 ```
 
-## Key References
-
-- TurboQuant Paper: https://arxiv.org/pdf/2504.19874
-- QJL Paper: https://arxiv.org/abs/2406.03482
-- Shannon 1948: "A Mathematical Theory of Communication"
-- Lloyd 1982: "Least squares quantization in PCM"
-
 ## Story Progress
 
-## US-001: Research Shannon's Source Coding Theory
-Date: 2026-03-28
-
-### What was done:
-- Created research/01-shannon-source-coding.md (1502 words, LaTeX-formatted)
-- Added Prerequisites Refresher: information content, discrete entropy, probability/expectation
-- Covered differential entropy $h(X)$, mutual information $I(X;Y)$, distortion-rate $D(R)$
-- Step-by-step derivation of Shannon Lower Bound (Lemma 2) in 4 steps
-- Two worked examples with comparison table across bit-widths
-
-### Key learnings:
-- TurboQuant's approximation factor is $\sqrt{3}\pi/2 \approx 2.72$, constant for all bit-widths
-- The SLB derivation hinges on: entropy power inequality + MI constraint + Gaussian maximality
-- Yao's minimax principle bridges worst-case randomized to average-case deterministic on $\mathbb{S}^{d-1}$
-
-### Files created/modified:
-- research/01-shannon-source-coding.md (rewritten with LaTeX math)
-- prd.json (US-001 passes: true)
-- progress.txt (this entry)
-
-### Mathematical insights:
-- SLB formula: $D(p_X, B) \geq \frac{d}{2\pi e} \cdot 2^{\frac{2}{d}(h(\mathbf{x}) - B)}$
-- For unit sphere: lower bound simplifies to $D_{\text{mse}} \geq 1/4^b$
-
-### Next story hint:
-- US-002 (Beta Distribution on Hyperspheres) needs Gamma function refresher and Lemma 1 derivation
-- The connection: random rotation makes coordinates follow Beta distribution, which converges to Gaussian for large $d$
-
----
-
-## US-002: Research Beta Distribution on Hyperspheres
-Date: 2026-03-28
-
-### What was done:
-- Created research/02-hypersphere-distributions.md (1368 words, LaTeX-formatted)
-- Prerequisite refreshers: orthogonal matrices, hypersphere visualization ($d=2,3$), Gamma function
-- Derived Lemma 1 via surface area slicing in 4 steps
-- Showed convergence to $\mathcal{N}(0, 1/d)$ with heuristic proof and numerical comparison
-- Covered concentration of measure with sub-Gaussian tail bound
-
-### Key learnings:
-- The derivation is geometric: marginal density = cross-sectional surface area / total surface area
-- Verification for $d=3$ gives uniform on $[-1,1]$ — Archimedes' hat-box theorem
-- Covariance between coordinates is $-1/(d(d-1)) \to 0$, justifying near-independence
-- Variance is exactly $1/d$ by symmetry: $\sum x_j^2 = 1 \Rightarrow d \cdot \mathbb{E}[x_j^2] = 1$
-
-### Files created/modified:
-- research/02-hypersphere-distributions.md (new)
-- prd.json (US-002 passes: true)
-- progress.txt (this entry)
-
-### Mathematical insights:
-- Lemma 1: $f_X(x) = \frac{\Gamma(d/2)}{\sqrt{\pi}\,\Gamma((d-1)/2)}(1-x^2)^{(d-3)/2}$
-- Convergence: $\log(1-x^2) \approx -x^2$ gives Gaussian shape with variance $1/d$
-- Sub-Gaussian tail: $\mathbb{P}(|x_j| > t) \leq 2\exp(-dt^2/2)$
-
-### Next story hint:
-- US-003 (Lloyd-Max Quantization) builds directly on this: the Beta/Gaussian density is the input distribution for the optimal scalar quantizer
-- Need to solve the continuous k-means problem (Equation 4) for this specific density
-
----
-
-## US-003: Research Lloyd-Max Scalar Quantization
-Date: 2026-03-28
-
-### What was done:
-- Created research/03-lloyd-max-quantization.md (1690 words, LaTeX with symbol tables)
-- Explained k-means as prerequisite, then connected to continuous Lloyd-Max
-- Derived Equation 4 (TurboQuant's codebook optimization) with component breakdown
-- Documented full numerical codebooks for b=1,2,3,4 bits (both N(0,1) and TurboQuant-scaled)
-- Covered Panter-Dite high-resolution formula with derivation sketch
-
-### Key learnings:
-- Lloyd-Max is exactly k-means on a continuous distribution: centroid rule + midpoint rule
-- Standard N(0,1) codebook values scale by $1/\sqrt{d}$ for TurboQuant's $\mathcal{N}(0,1/d)$ distribution
-- 1-bit optimal centroid = $\sqrt{2/\pi} \approx 0.7979$ — this connects to the $2/\pi$ bias in US-005
-- Panter-Dite formula evaluates to $\frac{\sqrt{3}\pi}{2d} \cdot 4^{-b}$ for Gaussian, confirming the 2.72 gap
-
-### Files created/modified:
-- research/03-lloyd-max-quantization.md (new)
-- prd.json (US-003 passes: true)
-- progress.txt (this entry)
-
-### Mathematical insights:
-- Equation 4: $\mathcal{C}(f_X, b) = \min \sum_{i=1}^{2^b} \int |x-c_i|^2 f_X(x) dx$
-- Panter-Dite: $\mathcal{C} \leq \frac{1}{12}(\int f_X^{1/3} dx)^3 \cdot 4^{-b}$
-
-### Next story hint:
-- US-004 (QJL Transform) requires understanding of inner products and random projections
-- The 1-bit centroid $\sqrt{2/\pi}$ will reappear as the bias factor in inner product estimation
-
----
-
-## US-004: Research QJL Transform
-Date: 2026-03-28
-
-### What was done:
-- Created research/04-qjl-transform.md (1614 words, LaTeX with symbol tables)
-- Prerequisite refreshers: inner product (geometric), expectation/variance, JL lemma
-- Documented Definition 1: forward $Q_{\text{qjl}}(\mathbf{x}) = \text{sign}(S\mathbf{x})$ and inverse
-- Proved unbiasedness in 3 steps via jointly Gaussian argument
-- Covered variance bound with dimension scaling table
-- Explained why sign() preserves inner products (Charikar's SimHash geometry)
-
-### Key learnings:
-- The $\sqrt{\pi/2}$ in dequantization cancels the $\sqrt{2/\pi}$ from $\mathbb{E}[\text{sign}]$ — that's the entire design
-- Variance $\leq \pi/(2d) \cdot \|\mathbf{y}\|^2$ decays with dimension, making QJL better in high-$d$
-- QJL needs no scale/zero-point storage — just $d$ sign bits + the random seed
-- The connection to SimHash/LSH: $\Pr[\text{sign disagree}] = \theta/\pi$
-
-### Files created/modified:
-- research/04-qjl-transform.md (new)
-- prd.json (US-004 passes: true)
-- progress.txt (this entry)
-
-### Mathematical insights:
-- Key identity: $\mathbb{E}[U \cdot \text{sign}(V)] = \sqrt{2/\pi} \cdot \text{Cov}(U,V)/\sqrt{\text{Var}(V)}$ for jointly Gaussian $(U,V)$
-- This gives $\mathbb{E}[\langle \mathbf{y}, \mathbf{s}\rangle \cdot \text{sign}(\langle \mathbf{s}, \mathbf{x}\rangle)] = \sqrt{2/\pi} \cdot \langle \mathbf{y}, \mathbf{x}\rangle$
-
-### Next story hint:
-- US-005 (MSE vs Inner Product Bias) brings US-003 and US-004 together
-- The $2/\pi$ bias factor from 1-bit MSE quantization is the bridge
-
----
-
-## US-005: Research MSE vs Inner Product Bias Problem
-Date: 2026-03-28
-
-### What was done:
-- Created research/05-mse-vs-inner-product-bias.md (1535 words, LaTeX with symbol tables)
-- Refreshers: unbiased estimators, residuals
-- Worked through 1-bit bias example completely ($2/\pi$ factor)
-- Table of bias factors for b=1,2,3,4
-- Full Algorithm 2 walkthrough with symbol tables
-- 3-step unbiasedness proof for the two-stage approach
-
-### Key learnings:
-- The $2/\pi$ factor comes from $\mathbb{E}[|V|]/\sigma = \sqrt{2/\pi}$ for half-normal distribution
-- Simple rescaling by $\pi/2$ removes bias but amplifies variance by $(\pi/2)^2 \approx 2.47$
-- The two-stage proof is elegant: QJL is unbiased for residual, and $\hat{\mathbf{x}}_{\text{mse}} + \mathbf{r} = \mathbf{x}$
-- MSE stage doesn't need to be unbiased — QJL corrects whatever remains
-
-### Files created/modified:
-- research/05-mse-vs-inner-product-bias.md (new)
-- prd.json (US-005 passes: true)
-- progress.txt (this entry)
-
-### Next story hint:
-- US-006 (TurboQuant_mse Algorithm) documents Algorithm 1 in full detail with worked examples
-- US-007 (TurboQuant_prod Algorithm) documents Algorithm 2 — builds on US-005's bias analysis
-
----
-
-## US-006: Document TurboQuant_mse Algorithm
-Date: 2026-03-28
-
-### What was done:
-- Created research/06-turboquant-mse-algorithm.md (1433 words, LaTeX with symbol tables)
-- Refresher: QR decomposition, matrix-vector multiplication
-- Full annotated pseudocode for Algorithm 1 (setup, quant, dequant)
-- Theorem 1 proof in 4 steps (rotation preserves MSE → per-coordinate → Panter-Dite)
-- Worked example: quantized a 4D vector with b=2 bits showing actual index assignments
-
-### Key learnings:
-- The proof is clean: rotation preserves MSE → decompose into coordinates → each is the same k-means cost
-- Empirical MSE beats the Panter-Dite upper bound (e.g., 0.117 vs 0.170 at b=2)
-- Codebook is data-independent — depends only on d and b, computed once
-- Random rotation generation: QR decomposition of Gaussian matrix gives uniform O(d) distribution
-
-### Files created/modified:
-- research/06-turboquant-mse-algorithm.md (new)
-- prd.json (US-006 passes: true)
-- progress.txt (this entry)
-
-### Next story hint:
-- US-007 (TurboQuant_prod Algorithm) combines US-006 + US-005 into Algorithm 2
-- Need to document the residual computation, norm storage, and combined dequantization
-
----
-
-## US-007: Document TurboQuant_prod Algorithm
-Date: 2026-03-28
-
-### What was done:
-- Created research/07-turboquant-prod-algorithm.md (1298 words, LaTeX with symbol tables)
-- Full annotated pseudocode for Algorithm 2 (setup, Quant_prod, DeQuant_prod)
-- Explained $(b-1) + 1$ bit split rationale
-- Documented storage format: indices + sign bits + norm
-- Theorem 2 proof sketch (unbiasedness + distortion bound chaining)
-- Worked example with numerical unbiasedness verification
-
-### Key learnings:
-- Distortion proof chains Theorem 1 into QJL variance: $D_{\text{prod}} \leq \frac{\pi}{2d}\|\mathbf{r}\|^2\|\mathbf{y}\|^2$
-- The factor $4^{-(b-1)} \cdot 4 = 4^{-b}$ neatly combines MSE and QJL contributions
-- Per-vector overhead is just 1 float (norm $\gamma$) — negligible for $d \geq 64$
-- At $d=128, b=3$: inner product error std dev $\approx 0.037$
-
-### Files created/modified:
-- research/07-turboquant-prod-algorithm.md (new)
-- prd.json (US-007 passes: true)
-- progress.txt (this entry)
-
-### Next story hint:
-- US-008 (Lower Bounds and Optimality) completes the research phase
-- Needs Yao's minimax, Theorem 3, and the approximation factor calculation
-
----
-
-## US-008: Document Lower Bounds and Optimality
-Date: 2026-03-28
-
-### What was done:
-- Created research/08-lower-bounds-optimality.md (1171 words, LaTeX with symbol tables)
-- Yao's minimax principle refresher and its role in the proof
-- Theorem 3 full proof in 3 steps (Yao → SLB → Stirling → clean bound)
-- Approximation factor: $\sqrt{3}\pi/2 \approx 2.72$ for MSE, $\sqrt{3}\pi^2 \approx 17.1$ for inner product
-- Comparison table for b=1,2,3,4,5 with both theoretical and empirical ratios
-- Explained why gap is tighter at low bit-widths (Panter-Dite is asymptotic)
-
-### Key learnings:
-- The proof is a beautiful chain: Yao → uniform sphere → SLB → Stirling → $4^{-b}$
-- Stirling cancellation: sphere surface area and Gaussian entropy constants cancel perfectly
-- Empirical gap is much tighter than 2.72: only $\approx 1.44\times$ at $b=1$
-- The 2.72 factor = $\approx 0.72$ extra bits/coordinate above information-theoretic minimum
-
-### Files created/modified:
-- research/08-lower-bounds-optimality.md (new)
-- prd.json (US-008 passes: true)
-- progress.txt (this entry)
-
-### RESEARCH PHASE COMPLETE
-All 8 research stories (US-001 through US-008) are now done.
-Next phase: CUDA implementation starting with US-009 (Set Up CUDA Development Environment).
+(Entries will be added as stories are completed)
 
 ---
