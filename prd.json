@@ -114,7 +114,7 @@
       "id": "US-006",
       "title": "Document TurboQuant_mse Algorithm",
       "priority": 6,
-      "passes": false,
+      "passes": true,
       "description": "Fully document Algorithm 1 (MSE-optimized TurboQuant) with annotated pseudocode.",
       "acceptanceCriteria": [
         "Create research/06-turboquant-mse-algorithm.md with LaTeX math",

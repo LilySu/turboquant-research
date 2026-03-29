@@ -232,3 +232,30 @@ Date: 2026-03-28
 - US-007 (TurboQuant_prod Algorithm) documents Algorithm 2 — builds on US-005's bias analysis
 
 ---
+
+## US-006: Document TurboQuant_mse Algorithm
+Date: 2026-03-28
+
+### What was done:
+- Created research/06-turboquant-mse-algorithm.md (1433 words, LaTeX with symbol tables)
+- Refresher: QR decomposition, matrix-vector multiplication
+- Full annotated pseudocode for Algorithm 1 (setup, quant, dequant)
+- Theorem 1 proof in 4 steps (rotation preserves MSE → per-coordinate → Panter-Dite)
+- Worked example: quantized a 4D vector with b=2 bits showing actual index assignments
+
+### Key learnings:
+- The proof is clean: rotation preserves MSE → decompose into coordinates → each is the same k-means cost
+- Empirical MSE beats the Panter-Dite upper bound (e.g., 0.117 vs 0.170 at b=2)
+- Codebook is data-independent — depends only on d and b, computed once
+- Random rotation generation: QR decomposition of Gaussian matrix gives uniform O(d) distribution
+
+### Files created/modified:
+- research/06-turboquant-mse-algorithm.md (new)
+- prd.json (US-006 passes: true)
+- progress.txt (this entry)
+
+### Next story hint:
+- US-007 (TurboQuant_prod Algorithm) combines US-006 + US-005 into Algorithm 2
+- Need to document the residual computation, norm storage, and combined dequantization
+
+---
