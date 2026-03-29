@@ -141,3 +141,34 @@ Date: 2026-03-28
 - Need to solve the continuous k-means problem (Equation 4) for this specific density
 
 ---
+
+## US-003: Research Lloyd-Max Scalar Quantization
+Date: 2026-03-28
+
+### What was done:
+- Created research/03-lloyd-max-quantization.md (1690 words, LaTeX with symbol tables)
+- Explained k-means as prerequisite, then connected to continuous Lloyd-Max
+- Derived Equation 4 (TurboQuant's codebook optimization) with component breakdown
+- Documented full numerical codebooks for b=1,2,3,4 bits (both N(0,1) and TurboQuant-scaled)
+- Covered Panter-Dite high-resolution formula with derivation sketch
+
+### Key learnings:
+- Lloyd-Max is exactly k-means on a continuous distribution: centroid rule + midpoint rule
+- Standard N(0,1) codebook values scale by $1/\sqrt{d}$ for TurboQuant's $\mathcal{N}(0,1/d)$ distribution
+- 1-bit optimal centroid = $\sqrt{2/\pi} \approx 0.7979$ — this connects to the $2/\pi$ bias in US-005
+- Panter-Dite formula evaluates to $\frac{\sqrt{3}\pi}{2d} \cdot 4^{-b}$ for Gaussian, confirming the 2.72 gap
+
+### Files created/modified:
+- research/03-lloyd-max-quantization.md (new)
+- prd.json (US-003 passes: true)
+- progress.txt (this entry)
+
+### Mathematical insights:
+- Equation 4: $\mathcal{C}(f_X, b) = \min \sum_{i=1}^{2^b} \int |x-c_i|^2 f_X(x) dx$
+- Panter-Dite: $\mathcal{C} \leq \frac{1}{12}(\int f_X^{1/3} dx)^3 \cdot 4^{-b}$
+
+### Next story hint:
+- US-004 (QJL Transform) requires understanding of inner products and random projections
+- The 1-bit centroid $\sqrt{2/\pi}$ will reappear as the bias factor in inner product estimation
+
+---

@@ -55,7 +55,7 @@
       "id": "US-003",
       "title": "Research Lloyd-Max Scalar Quantization",
       "priority": 3,
-      "passes": false,
+      "passes": true,
       "description": "Understand optimal scalar quantization and codebook construction as a continuous k-means problem.",
       "acceptanceCriteria": [
         "Create research/03-lloyd-max-quantization.md with LaTeX math",
