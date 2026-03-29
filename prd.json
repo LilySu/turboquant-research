@@ -154,7 +154,7 @@
       "id": "US-008",
       "title": "Document Lower Bounds and Optimality",
       "priority": 8,
-      "passes": false,
+      "passes": true,
       "description": "Understand information-theoretic lower bounds and verify TurboQuant's near-optimality.",
       "acceptanceCriteria": [
         "Create research/08-lower-bounds-optimality.md with LaTeX math",

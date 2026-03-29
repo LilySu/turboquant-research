@@ -287,3 +287,31 @@ Date: 2026-03-28
 - Needs Yao's minimax, Theorem 3, and the approximation factor calculation
 
 ---
+
+## US-008: Document Lower Bounds and Optimality
+Date: 2026-03-28
+
+### What was done:
+- Created research/08-lower-bounds-optimality.md (1171 words, LaTeX with symbol tables)
+- Yao's minimax principle refresher and its role in the proof
+- Theorem 3 full proof in 3 steps (Yao → SLB → Stirling → clean bound)
+- Approximation factor: $\sqrt{3}\pi/2 \approx 2.72$ for MSE, $\sqrt{3}\pi^2 \approx 17.1$ for inner product
+- Comparison table for b=1,2,3,4,5 with both theoretical and empirical ratios
+- Explained why gap is tighter at low bit-widths (Panter-Dite is asymptotic)
+
+### Key learnings:
+- The proof is a beautiful chain: Yao → uniform sphere → SLB → Stirling → $4^{-b}$
+- Stirling cancellation: sphere surface area and Gaussian entropy constants cancel perfectly
+- Empirical gap is much tighter than 2.72: only $\approx 1.44\times$ at $b=1$
+- The 2.72 factor = $\approx 0.72$ extra bits/coordinate above information-theoretic minimum
+
+### Files created/modified:
+- research/08-lower-bounds-optimality.md (new)
+- prd.json (US-008 passes: true)
+- progress.txt (this entry)
+
+### RESEARCH PHASE COMPLETE
+All 8 research stories (US-001 through US-008) are now done.
+Next phase: CUDA implementation starting with US-009 (Set Up CUDA Development Environment).
+
+---
