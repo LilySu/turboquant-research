@@ -172,3 +172,35 @@ Date: 2026-03-28
 - The 1-bit centroid $\sqrt{2/\pi}$ will reappear as the bias factor in inner product estimation
 
 ---
+
+## US-004: Research QJL Transform
+Date: 2026-03-28
+
+### What was done:
+- Created research/04-qjl-transform.md (1614 words, LaTeX with symbol tables)
+- Prerequisite refreshers: inner product (geometric), expectation/variance, JL lemma
+- Documented Definition 1: forward $Q_{\text{qjl}}(\mathbf{x}) = \text{sign}(S\mathbf{x})$ and inverse
+- Proved unbiasedness in 3 steps via jointly Gaussian argument
+- Covered variance bound with dimension scaling table
+- Explained why sign() preserves inner products (Charikar's SimHash geometry)
+
+### Key learnings:
+- The $\sqrt{\pi/2}$ in dequantization cancels the $\sqrt{2/\pi}$ from $\mathbb{E}[\text{sign}]$ — that's the entire design
+- Variance $\leq \pi/(2d) \cdot \|\mathbf{y}\|^2$ decays with dimension, making QJL better in high-$d$
+- QJL needs no scale/zero-point storage — just $d$ sign bits + the random seed
+- The connection to SimHash/LSH: $\Pr[\text{sign disagree}] = \theta/\pi$
+
+### Files created/modified:
+- research/04-qjl-transform.md (new)
+- prd.json (US-004 passes: true)
+- progress.txt (this entry)
+
+### Mathematical insights:
+- Key identity: $\mathbb{E}[U \cdot \text{sign}(V)] = \sqrt{2/\pi} \cdot \text{Cov}(U,V)/\sqrt{\text{Var}(V)}$ for jointly Gaussian $(U,V)$
+- This gives $\mathbb{E}[\langle \mathbf{y}, \mathbf{s}\rangle \cdot \text{sign}(\langle \mathbf{s}, \mathbf{x}\rangle)] = \sqrt{2/\pi} \cdot \langle \mathbf{y}, \mathbf{x}\rangle$
+
+### Next story hint:
+- US-005 (MSE vs Inner Product Bias) brings US-003 and US-004 together
+- The $2/\pi$ bias factor from 1-bit MSE quantization is the bridge
+
+---

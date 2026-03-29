@@ -75,7 +75,7 @@
       "id": "US-004",
       "title": "Research QJL Transform",
       "priority": 4,
-      "passes": false,
+      "passes": true,
       "description": "Understand Quantized Johnson-Lindenstrauss for 1-bit inner product quantization.",
       "acceptanceCriteria": [
         "Create research/04-qjl-transform.md with LaTeX math",
