@@ -221,3 +221,34 @@ Date: 2026-03-30
 - $B_q = 4$ bits suffices in practice (Theorem 3.3: $B_q = \Theta(\log\log D)$)
 
 ---
+
+## US-012: Research RaBitQ Query Quantization and Efficient Computation
+Date: 2026-03-30
+
+### What was done:
+- Created research/12-rabitq-query-computation.md (1600+ words, LaTeX with symbol tables)
+- Documented query transformation $\mathbf{q}' = P^{-1}\mathbf{q}$ and uniform scalar quantization
+- Explained randomized rounding for preserving unbiasedness
+- Stated Theorem 3.3: $B_q = \Theta(\log\log D)$ suffices
+- Derived efficient computation formula with term-by-term breakdown
+- Explained bitwise decomposition: $\langle \bar{\mathbf{x}}_b, \bar{\mathbf{q}}_u\rangle = \sum 2^j \cdot \text{popcount}(\bar{\mathbf{x}}_b \wedge \bar{\mathbf{q}}_u^{(j)})$
+- Analyzed reference implementation (space.h): range, quantize, transpose_bin, ip_byte_bin
+- Full worked example: 8D vector with $B_q = 2$ showing all intermediate steps
+
+### Key learnings:
+- Only $\langle \bar{\mathbf{x}}_b, \bar{\mathbf{q}}_u\rangle$ varies per data vector — everything else is precomputed
+- For $D = 128$, $B_q = 4$: just 8 uint64 ANDs + 8 popcounts per distance
+- Reference code uses AVX2 `_mm256_movemask_epi8` for efficient byte-to-bitplane transpose
+- Randomized rounding ($u_i \sim U(0,1)$) is essential for unbiasedness; deterministic rounding adds bias
+
+### Files created/modified:
+- research/12-rabitq-query-computation.md (new)
+- prd.json (US-012 passes: true)
+- progress.txt (this entry)
+
+### Next story hint:
+- US-013 (SIMD FastScan) shows batch processing of 32 vectors using LUT + AVX2 shuffle
+- Key technique: split D-bit string into D/4 sub-segments, build 16-entry LUT per segment
+- AVX2 `vpshufb` instruction enables parallel 4-bit LUT lookup for 32 vectors simultaneously
+
+---

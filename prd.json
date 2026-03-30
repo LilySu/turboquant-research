@@ -308,7 +308,7 @@
       "id": "US-012",
       "title": "Research RaBitQ Query Quantization and Efficient Computation",
       "priority": 12,
-      "passes": false,
+      "passes": true,
       "description": "Understand how RaBitQ quantizes query vectors and computes distances efficiently using bitwise operations.",
       "acceptanceCriteria": [
         "Create research/12-rabitq-query-computation.md with LaTeX math",
