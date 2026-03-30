@@ -284,3 +284,34 @@ Date: 2026-03-30
 - The confidence interval from US-011 (Eq. 16) drives intelligent candidate filtering
 
 ---
+
+## US-014: Research RaBitQ with IVF Index Integration
+Date: 2026-03-30
+
+### What was done:
+- Created research/14-rabitq-ivf-integration.md (1500+ words, LaTeX with symbol tables)
+- Documented IVF structure with per-cluster normalization
+- Detailed index phase and query phase with pseudocode
+- Explained error-bound-based re-ranking strategy (RaBitQ's key innovation)
+- Compared IVF-PQ vs IVF-RaBitQ workflow with feature table
+- Included performance summary from paper experiments
+- Worked example: 1M vectors, 8 probes, showing candidate filtering
+
+### Key learnings:
+- RaBitQ uses half the code length of PQ while achieving equal or better recall
+- PQ fails catastrophically on MSong (<60% recall) — RaBitQ works stably
+- $\varepsilon_0 = 1.9$ is the practical confidence parameter
+- Per-vector adaptive re-ranking is fundamentally better than global thresholds
+- Index time is comparable to PQ (117s vs 105s on GIST 1M)
+
+### Files created/modified:
+- research/14-rabitq-ivf-integration.md (new)
+- prd.json (US-014 passes: true)
+- progress.txt (this entry)
+
+### Next story hint:
+- US-015 (Implementation Analysis) analyzes the C++ reference code in detail
+- Key files: ivf_rabitq.h (search workflow), space.h (bitwise), fast_scan.h (SIMD)
+- Focus on the IVFRN class structure, search() function, and getRatio() method
+
+---

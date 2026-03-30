@@ -366,7 +366,7 @@
       "id": "US-014",
       "title": "Research RaBitQ with IVF Index Integration",
       "priority": 14,
-      "passes": false,
+      "passes": true,
       "description": "Understand how RaBitQ integrates with Inverted File (IVF) index for ANN search.",
       "acceptanceCriteria": [
         "Create research/14-rabitq-ivf-integration.md with LaTeX math",
