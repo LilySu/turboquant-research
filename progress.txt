@@ -449,3 +449,42 @@ Date: 2026-03-30
 - Benchmark for D = 128, 256, 512, 960
 
 ---
+
+## US-019: Implement Random Orthogonal Matrix Generation
+Date: 2026-03-30
+
+### What was done:
+- Created src/rotation.hpp and src/rotation.cpp
+- Implemented generate_orthogonal(D, seed) via Eigen HouseholderQR on Gaussian matrix
+- Implemented inverse_rotate(X, P) computing X * P^T for batch inverse-transform
+- Created src/tests/test_rotation.cpp with 8 tests:
+  - Orthogonality: P^T P = I within 1e-5 for D = 64, 128, 256, 512, 960
+  - Determinant: |det(P)| = 1 for D = 64, 128, 256
+  - Different seeds → different matrices
+  - Same seed → identical matrices (reproducibility)
+  - inverse_rotate preserves norms
+  - inverse_rotate preserves inner products
+  - Benchmark: generation time (D=128: 0.3ms, D=960: 34ms)
+  - Benchmark: inverse_rotate throughput (D=128: 2.6M vec/s, D=960: 62K vec/s)
+- Fixed CMake to exclude Eigen's 900+ internal tests from ctest
+- All 14 tests pass (6 setup + 8 rotation), ctest clean
+
+### Key learnings:
+- HouseholderQR is fast: 0.3ms for D=128, 34ms for D=960 (one-time cost)
+- Inverse rotation throughput is high: 2.6M vec/s at D=128 with AVX2
+- Must use CACHE BOOL FORCE to properly suppress Eigen test registration in FetchContent
+
+### Files created/modified:
+- src/rotation.hpp (new)
+- src/rotation.cpp (new)
+- src/tests/test_rotation.cpp (new)
+- src/CMakeLists.txt (updated — fixed Eigen test leak, added rabitq static lib)
+- prd.json (US-019 passes: true)
+- progress.txt (this entry)
+
+### Next story hint:
+- US-020 (RaBitQ Data Quantization) implements rabitq_index.hpp/.cpp
+- Centroid computation, vector normalization, sign extraction → D-bit code
+- Precompute ||o_r - c||, ⟨ō,o⟩, x̄_b per vector
+
+---

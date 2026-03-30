@@ -26,7 +26,12 @@ FetchContent_Declare(
   GIT_TAG        3.4.0
   GIT_SHALLOW    TRUE
 )
+# Prevent Eigen from registering its own 900+ tests with ctest
+set(BUILD_TESTING OFF CACHE BOOL "" FORCE)
+set(EIGEN_BUILD_TESTING OFF CACHE BOOL "" FORCE)
+set(EIGEN_BUILD_DOC OFF CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(eigen)
+set(BUILD_TESTING ON CACHE BOOL "" FORCE)
 
 # --------------------------------------------------------------------------
 # Google Test via FetchContent
@@ -42,18 +47,23 @@ FetchContent_MakeAvailable(googletest)
 enable_testing()
 
 # --------------------------------------------------------------------------
-# Library: rabitq (header-only for now, will add .cpp files later)
+# Library: rabitq
 # --------------------------------------------------------------------------
-add_library(rabitq INTERFACE)
-target_include_directories(rabitq INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
-target_link_libraries(rabitq INTERFACE Eigen3::Eigen)
+add_library(rabitq STATIC
+  rotation.cpp
+)
+target_include_directories(rabitq PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_link_libraries(rabitq PUBLIC Eigen3::Eigen)
 
 # --------------------------------------------------------------------------
 # Tests
 # --------------------------------------------------------------------------
 add_executable(test_setup tests/test_setup.cpp)
 target_link_libraries(test_setup PRIVATE rabitq GTest::gtest_main)
-target_compile_options(test_setup PRIVATE -mavx2)
+
+add_executable(test_rotation tests/test_rotation.cpp)
+target_link_libraries(test_rotation PRIVATE rabitq GTest::gtest_main)
 
 include(GoogleTest)
 gtest_discover_tests(test_setup)
+gtest_discover_tests(test_rotation)

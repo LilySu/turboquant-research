@@ -481,7 +481,7 @@
       "id": "US-019",
       "title": "Implement Random Orthogonal Matrix Generation",
       "priority": 19,
-      "passes": false,
+      "passes": true,
       "description": "Generate random orthogonal transformation matrices for RaBitQ.",
       "acceptanceCriteria": [
         "Create src/rotation.hpp and src/rotation.cpp",
