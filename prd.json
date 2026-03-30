@@ -417,7 +417,7 @@
       "id": "US-016",
       "title": "Analyze GLM5 KV Cache Architecture",
       "priority": 16,
-      "passes": false,
+      "passes": true,
       "description": "Study the local GLM5 repository to understand its KV cache structure.",
       "localPath": "/home/lily/wsl_git/glm5",
       "acceptanceCriteria": [

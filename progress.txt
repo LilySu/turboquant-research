@@ -348,3 +348,35 @@ Date: 2026-03-30
 - Look for attention implementation, KV cache shapes, and quantization hooks
 
 ---
+
+## US-016: Analyze GLM5 KV Cache Architecture
+Date: 2026-03-30
+
+### What was done:
+- Created research/16-glm5-kv-cache.md analyzing the local GLM5 repository
+- Documented model config: 78 layers, 64 heads, MLA with kv_lora_rank=512
+- Analyzed MLA projection chain: hidden_size=6144 → compressed 576D → expanded 28672D
+- Documented KVCache class: [B, H, T, D] format, dynamic concat, no eviction
+- Computed memory: 4.9 MB/token (raw) vs 88 KB/token (MLA compressed) — 56× reduction
+- Analyzed DSA indexer: top-2048 sparse attention with separate key cache
+- Identified existing FP8 quantization in FlashMLA and TensorRT variants
+- Proposed three hook points for TurboQuant integration
+
+### Key learnings:
+- GLM5 uses MLA (like DeepSeekV2) — KV is already compressed to 576D before caching
+- Raw implementation caches expanded K/V; FlashMLA variant caches compressed 576D
+- Best TurboQuant hook: after kv_a_proj_with_mqa (line 276 in model.py)
+- DSA indexer has its own key cache — may also benefit from quantization
+- MLA's kv_b_proj expansion is the bottleneck — if absorbed into Q/O, cache stays at 576D
+
+### Files created/modified:
+- research/16-glm5-kv-cache.md (new)
+- prd.json (US-016 passes: true)
+- progress.txt (this entry)
+
+### Next story hint:
+- US-017 (DeepSeekV3.2 KV Cache) reads /home/lily/wsl_git/deepseekv3_2
+- DeepSeekV3.2 also uses MLA — compare with GLM5's implementation
+- Look for differences in kv_lora_rank, head dimensions, and cache strategy
+
+---
