@@ -281,7 +281,7 @@
       "id": "US-011",
       "title": "Research RaBitQ Unbiased Estimator and Error Bound",
       "priority": 11,
-      "passes": false,
+      "passes": true,
       "description": "Understand RaBitQ's unbiased inner product estimator and its sharp theoretical error bound.",
       "acceptanceCriteria": [
         "Create research/11-rabitq-estimator-error-bound.md with LaTeX math",

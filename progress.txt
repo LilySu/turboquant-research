@@ -190,3 +190,34 @@ Date: 2026-03-30
 - The geometric decomposition (Lemma 3.1) splits $\langle \bar{\mathbf{o}}, \mathbf{q}\rangle$ into signal + noise terms
 
 ---
+
+## US-011: Research RaBitQ Unbiased Estimator and Error Bound
+Date: 2026-03-30
+
+### What was done:
+- Created research/11-rabitq-estimator-error-bound.md (1500+ words, LaTeX with symbol tables)
+- Derived Lemma 3.1 geometric decomposition with proof sketch
+- Proved Theorem 3.2 unbiasedness via symmetry of $\langle \bar{\mathbf{o}}, \mathbf{e}_1\rangle$
+- Documented error bound $O(1/\sqrt{D})$ and confidence interval (Eq. 14-16)
+- Explained asymptotic optimality (Alon & Klartag 2017 lower bound)
+- Showed PQ bias: $\mathbb{E}[\langle \bar{\mathbf{o}}, \mathbf{q}\rangle] = 0.8 \cdot \langle \mathbf{o}, \mathbf{q}\rangle \neq \langle \mathbf{o}, \mathbf{q}\rangle$
+- Numerical verification table with empirical values matching theory
+- Concrete error calculations for $D = 128$ and $D = 768$
+
+### Key learnings:
+- The division by $\langle \bar{\mathbf{o}}, \mathbf{o}\rangle$ exactly cancels the systematic 0.8× shrinkage factor
+- Symmetry of $\langle \bar{\mathbf{o}}, \mathbf{e}_1\rangle$ around 0 comes from isotropy of random orthogonal matrices
+- Per-vector confidence intervals are unique to RaBitQ — enables theory-guided re-ranking
+- Error shrinks as $1/\sqrt{D}$: higher-dimensional embeddings are quantized more accurately
+
+### Files created/modified:
+- research/11-rabitq-estimator-error-bound.md (new)
+- prd.json (US-011 passes: true)
+- progress.txt (this entry)
+
+### Next story hint:
+- US-012 (Query Quantization and Efficient Computation) shows how to compute $\langle \bar{\mathbf{o}}, \mathbf{q}\rangle$ efficiently using bitwise operations
+- Key trick: quantize query to $B_q$-bit integers, decompose into binary vectors, use AND + popcount
+- $B_q = 4$ bits suffices in practice (Theorem 3.3: $B_q = \Theta(\log\log D)$)
+
+---
