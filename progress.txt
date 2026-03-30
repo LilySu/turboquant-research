@@ -153,3 +153,40 @@ Date: 2026-03-29
 - Key insight: instead of searching $2^D$ vectors, compute $P^{-1}\mathbf{o}$ and take signs
 
 ---
+
+## US-010: Research RaBitQ Quantization: Finding Nearest Codebook Vector
+Date: 2026-03-30
+
+### What was done:
+- Created research/10-rabitq-quantization.md (1450+ words, LaTeX with symbol tables)
+- Derived the inverse transform trick: $\bar{\mathbf{x}} = \arg\max \langle P^{-1}\mathbf{o}, \mathbf{x}\rangle$
+- Explained coordinate-wise sign decomposition for finding optimal codebook vector
+- Documented D-bit string representation and reconstruction formula
+- Derived $\langle \bar{\mathbf{o}}, \mathbf{o}\rangle = \|\mathbf{v}\|_1/\sqrt{D}$ (L1 norm formula)
+- Documented expected value $\mathbb{E}[\langle \bar{\mathbf{o}}, \mathbf{o}\rangle] \approx 0.798$ with exact formula from paper
+- Analyzed reference implementation (rabitq.py) with code-to-math mapping
+- Worked example: quantized a 4D unit vector step-by-step with verification
+- Comparison table: RaBitQ vs TurboQuant vs PQ quantization approaches
+
+### Key learnings:
+- The inverse transform trick reduces $O(2^D)$ search to $O(D^2)$ matrix-vector multiply
+- $\langle \bar{\mathbf{o}}, \mathbf{o}\rangle = \|\mathbf{v}\|_1/\sqrt{D}$ — the quality metric is just the L1 norm of the rotated vector, normalized
+- Reference code uses $B = \lceil D/64 \rceil \cdot 64$ (padded to 64-bit boundary for efficient packing)
+- The code does NOT normalize to unit vector explicitly — it divides by $\|P^{-1}(\mathbf{o}_r - \mathbf{c})\| = \|\mathbf{o}_r - \mathbf{c}\|$ when computing x0
+- ill-defined x0 (when $\|\mathbf{o}_r - \mathbf{c}\| = 0$) is set to 0.8 as a safe default
+
+### Files created/modified:
+- research/10-rabitq-quantization.md (new)
+- prd.json (US-010 passes: true)
+- progress.txt (this entry)
+
+### Mathematical insights:
+- $\langle \bar{\mathbf{o}}, \mathbf{o}\rangle = \frac{1}{\sqrt{D}}\sum_{i=1}^{D}|(P^{-1}\mathbf{o})_i|$ — elegant L1/L2 norm ratio
+- Expected value formula: $\mathbb{E}[\langle \bar{\mathbf{o}}, \mathbf{o}\rangle] = \sqrt{D/\pi} \cdot 2\Gamma(D/2)/[(D-1)\Gamma((D-1)/2)]$
+
+### Next story hint:
+- US-011 (Unbiased Estimator and Error Bound) uses $\langle \bar{\mathbf{o}}, \mathbf{o}\rangle$ as the denominator
+- Key formula: $\mathbb{E}[\langle \bar{\mathbf{o}}, \mathbf{q}\rangle / \langle \bar{\mathbf{o}}, \mathbf{o}\rangle] = \langle \mathbf{o}, \mathbf{q}\rangle$ (unbiasedness)
+- The geometric decomposition (Lemma 3.1) splits $\langle \bar{\mathbf{o}}, \mathbf{q}\rangle$ into signal + noise terms
+
+---

@@ -255,7 +255,7 @@
       "id": "US-010",
       "title": "Research RaBitQ Quantization: Finding Nearest Codebook Vector",
       "priority": 10,
-      "passes": false,
+      "passes": true,
       "description": "Understand how RaBitQ efficiently finds the nearest codebook vector and stores it as a D-bit string.",
       "acceptanceCriteria": [
         "Create research/10-rabitq-quantization.md with LaTeX math",
