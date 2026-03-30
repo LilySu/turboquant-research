@@ -3,3 +3,8 @@
 *claude*
 *Claude*
 *CLAUDE*
+
+# C++ build
+src/build/
+*.o
+*.a

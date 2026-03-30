@@ -409,3 +409,43 @@ Date: 2026-03-30
 - This begins the implementation phase building on the research from US-009 through US-015
 
 ---
+
+## US-018: Set Up C++ Development Environment with Eigen
+Date: 2026-03-30
+
+### What was done:
+- Created src/CMakeLists.txt with FetchContent for Eigen 3.4.0 and Google Test 1.14.0
+- Set up AVX2 compilation flags (-Ofast -march=core-avx2)
+- Created src/defines.hpp with common type definitions (MatrixXf, VectorXf, rabitq namespace)
+- Created src/tests/test_setup.cpp with 6 tests:
+  - Eigen matrix multiplication
+  - QR decomposition → orthogonal matrix (Q^T Q = I within 1e-5)
+  - AVX2 popcount (__builtin_popcountll)
+  - AVX2 SIMD functional (_mm256_add_ps)
+  - defines.hpp constants and utilities
+  - Benchmark: matrix multiply for D = 128, 256, 512, 960
+- Created src/README.md with build instructions
+- Updated .gitignore for src/build/
+- All 6 tests pass, 5348 AVX2 instructions verified in binary
+
+### Key learnings:
+- FetchContent makes Eigen and GTest zero-install — just needs cmake + g++
+- Benchmark results: D=128: 1.3M vec/s, D=960: 54K vec/s for P^T multiplication
+- Row-major Eigen matrices (Eigen::RowMajor) better match RaBitQ's data layout
+- QR orthogonality error < 1e-5 for D=128 — sufficient for RaBitQ
+
+### Files created/modified:
+- src/CMakeLists.txt (new)
+- src/defines.hpp (new)
+- src/tests/test_setup.cpp (new)
+- src/README.md (new)
+- .gitignore (updated)
+- prd.json (US-018 passes: true)
+- progress.txt (this entry)
+
+### Next story hint:
+- US-019 (Random Orthogonal Matrix Generation) implements rotation.hpp/.cpp
+- Use Eigen's HouseholderQR on a random Gaussian matrix
+- Benchmark for D = 128, 256, 512, 960
+
+---
