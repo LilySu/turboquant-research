@@ -315,3 +315,36 @@ Date: 2026-03-30
 - Focus on the IVFRN class structure, search() function, and getRatio() method
 
 ---
+
+## US-015: Analyze RaBitQ Reference Implementation
+Date: 2026-03-30
+
+### What was done:
+- Created research/15-rabitq-implementation-analysis.md (1700+ words)
+- Documented IVFRN class structure with all member variables and math-to-code mapping
+- Analyzed Factor struct: precomputed distance components eliminating per-query division
+- Detailed search() function workflow: probe selection → query quantization → scan/fast_scan
+- Explained scan() and fast_scan() distance estimation and re-ranking logic
+- Compared SCAN vs FAST_SCAN compilation modes
+- Documented query rotation via Eigen matrix multiplication
+- Full data flow diagram: index phase → load → query phase
+
+### Key learnings:
+- Factor precomputation eliminates per-query division by $\langle \bar{\mathbf{o}}, \mathbf{o}\rangle$ — absorbed into factor_ip at load time
+- Error bound is per-vector (load time), only scaled by query-centroid distance at search time
+- Randomized query quantization `u[]` is sampled once at load and reused — simplification
+- 32-vector batching in SCAN mode improves cache locality even without SIMD
+- Data stored twice: binary codes for estimation + original floats for exact re-ranking
+- `max_x1 = 1.9 / √(B-1)` hardcodes $\varepsilon_0 = 1.9$ globally
+
+### Files created/modified:
+- research/15-rabitq-implementation-analysis.md (new)
+- prd.json (US-015 passes: true)
+- progress.txt (this entry)
+
+### Next story hint:
+- US-016 (GLM5 KV Cache) reads the local GLM5 repo at /home/lily/wsl_git/glm5
+- Must use filesystem exploration (ls, find, grep) — not web search
+- Look for attention implementation, KV cache shapes, and quantization hooks
+
+---

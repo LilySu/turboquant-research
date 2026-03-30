@@ -394,7 +394,7 @@
       "id": "US-015",
       "title": "Analyze RaBitQ Reference Implementation (search.cpp)",
       "priority": 15,
-      "passes": false,
+      "passes": true,
       "description": "Study the RaBitQ reference C++ implementation to understand practical details.",
       "acceptanceCriteria": [
         "Create research/15-rabitq-implementation-analysis.md",
