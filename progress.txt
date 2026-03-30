@@ -380,3 +380,32 @@ Date: 2026-03-30
 - Look for differences in kv_lora_rank, head dimensions, and cache strategy
 
 ---
+
+## US-017: Analyze DeepSeekV3.2 KV Cache Architecture
+Date: 2026-03-30
+
+### What was done:
+- Created research/17-deepseek-kv-cache.md analyzing the local DeepSeekV3.2 repository
+- Documented model config comparison: 671B params, 61 layers, 128 heads, MLA with kv_lora_rank=512
+- Analyzed MLA projection chain: hidden_size=7168 → compressed 576D → expanded 32768D
+- Compared with GLM5: same 576D bottleneck, no DSA, different head dimensions
+- Computed memory: 4.8 MB/token raw vs 69 KB/token MLA compressed (70× reduction)
+- Proposed TurboQuant hook points with memory estimates (8.6 KB/token with b=2)
+
+### Key learnings:
+- Both models share kv_lora_rank=512, so compressed KV is 576D in both — shared integration possible
+- No DSA in DeepSeekV3.2 → full causal attention → KV compression even more critical
+- DeepSeekV3.2 has 128 heads (vs 64) but smaller head dims (128 vs 256)
+- KVCache implementations are identical between the two repos
+- YaRN RoPE scaling for extended context (factor=40, original 4K → 160K)
+
+### Files created/modified:
+- research/17-deepseek-kv-cache.md (new)
+- prd.json (US-017 passes: true)
+- progress.txt (this entry)
+
+### Next story hint:
+- US-018 (C++ Development Environment) sets up Eigen, CMake, AVX2, Google Test
+- This begins the implementation phase building on the research from US-009 through US-015
+
+---
