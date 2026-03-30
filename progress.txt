@@ -252,3 +252,35 @@ Date: 2026-03-30
 - AVX2 `vpshufb` instruction enables parallel 4-bit LUT lookup for 32 vectors simultaneously
 
 ---
+
+## US-013: Research RaBitQ SIMD FastScan Implementation
+Date: 2026-03-30
+
+### What was done:
+- Created research/13-rabitq-fastscan-simd.md (1600+ words, LaTeX with symbol tables)
+- Explained LUT construction from query sub-segments (16 entries per 4-bit pattern)
+- Documented 32-code batch packing with nibble interleaving layout
+- Detailed `vpshufb` parallel LUT lookup mechanism with ASCII diagram
+- Analyzed reference implementation (fast_scan.h): pack_LUT, pack_codes, shuffle + accumulate
+- Compared SCAN (bitwise) vs FAST_SCAN (SIMD) modes with throughput analysis
+- Worked example: 4 codes with 2 sub-segments showing parallel lookup
+- Connected to PQx4fs (André et al. 2015, 2017) — nearly identical infrastructure
+
+### Key learnings:
+- FastScan is essentially PQx4fs with different LUT content (binary inner products vs centroid distances)
+- Two 16-entry LUTs fit in one 256-bit AVX2 register (16 bytes × 2 halves)
+- The `lowbit(j)` trick in pack_LUT builds entries incrementally, avoiding redundant computation
+- Data reorganization (nibble interleaving) is a one-time index-time cost
+- Accumulation uses 16-bit integers to prevent 8-bit overflow across sub-segments
+
+### Files created/modified:
+- research/13-rabitq-fastscan-simd.md (new)
+- prd.json (US-013 passes: true)
+- progress.txt (this entry)
+
+### Next story hint:
+- US-014 (IVF Integration) covers inverted file index with per-cluster normalization
+- Key innovation: RaBitQ uses theoretical error bounds for re-ranking decisions (not empirical thresholds)
+- The confidence interval from US-011 (Eq. 16) drives intelligent candidate filtering
+
+---

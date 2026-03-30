@@ -337,7 +337,7 @@
       "id": "US-013",
       "title": "Research RaBitQ SIMD FastScan Implementation",
       "priority": 13,
-      "passes": false,
+      "passes": true,
       "description": "Understand RaBitQ's SIMD-based batch distance computation using FastScan technique.",
       "acceptanceCriteria": [
         "Create research/13-rabitq-fastscan-simd.md with LaTeX math",
