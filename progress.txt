@@ -567,3 +567,46 @@ Date: 2026-03-31
 - Full estimator: ⟨ō,q⟩/⟨ō,o⟩ with error bound
 
 ---
+
+## US-022: Implement RaBitQ Bitwise Distance Computation
+Date: 2026-03-31
+
+### What was done:
+- Created src/rabitq_distance.hpp and src/rabitq_distance.cpp
+- Implemented ip_byte_bin(): AND + popcount across B_q bit planes
+- Implemented estimate_distance(): full RaBitQ distance estimator
+  - Reconstructs ⟨x̄, q̄⟩ from bitwise result + precomputed scalars
+  - Converts to squared distance matching reference formula
+  - Computes per-vector error bound with ε₀ = 1.9
+- Fixed query rotation bug (was using P instead of P^T)
+- Fixed distance formula: ⟨x̄,q̄⟩ already includes ||q_r-c|| factor
+- Created src/tests/test_rabitq_distance.cpp with 7 tests:
+  - ip_byte_bin correctness (full and partial)
+  - Unbiasedness: mean error = -0.03 over 50 trials × 200 vectors
+  - Error bound holds: 3.6% violations (target <10%)
+  - Lower bound ≤ estimated distance (always)
+  - Rough accuracy: 100/100 within 2x of true distance
+  - Benchmark: 111M dist/s at D=128
+- All 40 tests pass
+
+### Key learnings:
+- Query rotation must match index rotation: both use X @ P^T (not X @ P)
+- ⟨x̄, q̄⟩ includes the ||q_r-c|| factor because q' is not unit-normalized
+- Distance formula: dist² + sqr_y - 2·dist_o·⟨x̄,q̄⟩/x0 (no extra dist_q multiply)
+- 111M dist/s at D=128 means the bitwise core is extremely fast
+
+### Files created/modified:
+- src/rabitq_distance.hpp (new)
+- src/rabitq_distance.cpp (new)
+- src/tests/test_rabitq_distance.cpp (new)
+- src/rabitq_query.cpp (fixed rotation bug)
+- src/CMakeLists.txt (updated)
+- prd.json (US-022 passes: true)
+- progress.txt (this entry)
+
+### Next story hint:
+- US-023 (SIMD FastScan) implements rabitq_fastscan.hpp/.cpp
+- LUT construction, 32-code batch packing, AVX2 vpshufb lookup
+- Target: ≥3x faster than bitwise for batches
+
+---

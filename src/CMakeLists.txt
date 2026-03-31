@@ -53,6 +53,7 @@ add_library(rabitq STATIC
   rotation.cpp
   rabitq_index.cpp
   rabitq_query.cpp
+  rabitq_distance.cpp
 )
 target_include_directories(rabitq PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_link_libraries(rabitq PUBLIC Eigen3::Eigen)
@@ -72,8 +73,12 @@ target_link_libraries(test_rabitq_index PRIVATE rabitq GTest::gtest_main)
 add_executable(test_rabitq_query tests/test_rabitq_query.cpp)
 target_link_libraries(test_rabitq_query PRIVATE rabitq GTest::gtest_main)
 
+add_executable(test_rabitq_distance tests/test_rabitq_distance.cpp)
+target_link_libraries(test_rabitq_distance PRIVATE rabitq GTest::gtest_main)
+
 include(GoogleTest)
 gtest_discover_tests(test_setup)
 gtest_discover_tests(test_rotation)
 gtest_discover_tests(test_rabitq_index)
 gtest_discover_tests(test_rabitq_query)
+gtest_discover_tests(test_rabitq_distance)

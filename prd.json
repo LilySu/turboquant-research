@@ -545,7 +545,7 @@
       "id": "US-022",
       "title": "Implement RaBitQ Bitwise Distance Computation",
       "priority": 22,
-      "passes": false,
+      "passes": true,
       "description": "Implement efficient distance estimation using bitwise operations.",
       "acceptanceCriteria": [
         "Create src/rabitq_distance.hpp and src/rabitq_distance.cpp",

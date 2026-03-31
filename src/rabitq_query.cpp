@@ -39,9 +39,9 @@ QuantizedQuery quantize_query(
     Eigen::VectorXf c_pad = Eigen::VectorXf::Zero(B);
     c_pad.head(D) = index.centroid;
 
-    // q' = (q_pad - c_pad) @ P^T  (inverse rotation)
+    // q' = (q_pad - c_pad) @ P^T  (inverse rotation, same as build_index)
     Eigen::VectorXf centered = q_pad - c_pad;
-    Eigen::RowVectorXf q_prime = centered.transpose() * index.P;  // row @ P = P^T @ col in effect
+    Eigen::RowVectorXf q_prime = centered.transpose() * index.P.transpose();  // row @ P^T
 
     // Compute sqr_y = ||q_r - c||²
     result.sqr_y = centered.head(D).squaredNorm();
