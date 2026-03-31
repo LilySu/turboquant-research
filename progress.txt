@@ -530,3 +530,40 @@ Date: 2026-03-31
 - Randomized rounding for unbiasedness, precompute v_l, v_r, Δ, Σq̄_u
 
 ---
+
+## US-021: Implement RaBitQ Query Processing
+Date: 2026-03-31
+
+### What was done:
+- Created src/rabitq_query.hpp and src/rabitq_query.cpp
+- Implemented quantize_query(): inverse rotation, range computation, uniform scalar quantization
+- Implemented generate_dither() for randomized rounding
+- B_q=4 bit quantization with optional randomized or deterministic rounding
+- Bit plane extraction for bitwise distance computation
+- Created src/tests/test_rabitq_query.cpp with 9 tests:
+  - Shapes, value range [0,15], sum_q correctness
+  - Bit plane reconstruction matches q_u values
+  - Randomized rounding unbiasedness (max avg diff = 0.495)
+  - sqr_y correctness, deterministic reproducibility, padding
+  - Benchmark: D=128 at 475K q/s, D=960 at 13K q/s
+- All 33 tests pass
+
+### Key learnings:
+- Query quantization bottleneck is the inverse rotation (matrix multiply), not the scalar quantization
+- Randomized rounding max deviation ≈ 0.5 from deterministic — confirms unbiasedness
+- width = 0 edge case (all q' values identical) handled via one_over_width = 0
+
+### Files created/modified:
+- src/rabitq_query.hpp (new)
+- src/rabitq_query.cpp (new)
+- src/tests/test_rabitq_query.cpp (new)
+- src/CMakeLists.txt (updated)
+- prd.json (US-021 passes: true)
+- progress.txt (this entry)
+
+### Next story hint:
+- US-022 (Bitwise Distance Computation) implements rabitq_distance.hpp/.cpp
+- Core: ⟨x̄_b, q̄_u⟩ = Σ 2^j · popcount(x̄_b & q̄_u^(j))
+- Full estimator: ⟨ō,q⟩/⟨ō,o⟩ with error bound
+
+---

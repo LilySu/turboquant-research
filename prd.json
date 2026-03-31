@@ -524,7 +524,7 @@
       "id": "US-021",
       "title": "Implement RaBitQ Query Processing",
       "priority": 21,
-      "passes": false,
+      "passes": true,
       "description": "Implement query transformation and uniform scalar quantization.",
       "acceptanceCriteria": [
         "Create src/rabitq_query.hpp and src/rabitq_query.cpp",
