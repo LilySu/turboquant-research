@@ -502,7 +502,7 @@
       "id": "US-020",
       "title": "Implement RaBitQ Data Quantization (Index Phase)",
       "priority": 20,
-      "passes": false,
+      "passes": true,
       "description": "Implement the index phase: normalize vectors and compute quantization codes.",
       "acceptanceCriteria": [
         "Create src/rabitq_index.hpp and src/rabitq_index.cpp",

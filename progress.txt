@@ -488,3 +488,45 @@ Date: 2026-03-30
 - Precompute ||o_r - c||, ⟨ō,o⟩, x̄_b per vector
 
 ---
+
+## US-020: Implement RaBitQ Data Quantization (Index Phase)
+Date: 2026-03-31
+
+### What was done:
+- Created src/rabitq_index.hpp and src/rabitq_index.cpp
+- Implemented compute_centroid() for cluster mean
+- Implemented build_index() with full pipeline:
+  - Centroid subtraction, zero-padding to B dimensions
+  - Inverse rotation via P^T, sign extraction → D-bit binary code
+  - Precompute dist_to_centroid, x0 (⟨ō,o⟩), popcount per vector
+  - Degenerate case handling (x0 = 0.8 when vector = centroid)
+- Created src/tests/test_rabitq_index.cpp with 10 tests:
+  - Centroid, shapes, padding (D=100→B=128)
+  - x0 average ≈ 0.798 for D=128, 256, 512
+  - dist_to_centroid correctness
+  - Code reconstruction → unit vector
+  - x0 matches manual reconstruction via P^T · x̄
+  - Reproducibility
+  - Benchmark: D=128 at 587K vec/s, D=960 at 27K vec/s
+- All 24 tests pass (6 setup + 8 rotation + 10 index)
+
+### Key learnings:
+- Convention: P = Q from QR. Inverse transform = X @ Q^T. Forward (reconstruction) = Q^T x̄.
+- x0 = ||v||_1 / (√B · ||o_r - c||) where v = (o_r - c) @ Q^T
+- Average x0 ≈ 0.7999 for D=128, matching the paper's 0.798 prediction
+- Indexing is dominated by the matrix multiply (O(N·B²)), not the sign extraction
+
+### Files created/modified:
+- src/rabitq_index.hpp (new)
+- src/rabitq_index.cpp (new)
+- src/tests/test_rabitq_index.cpp (new)
+- src/CMakeLists.txt (updated)
+- prd.json (US-020 passes: true)
+- progress.txt (this entry)
+
+### Next story hint:
+- US-021 (Query Processing) implements rabitq_query.hpp/.cpp
+- Query normalization, inverse transform, uniform scalar quantization with B_q=4
+- Randomized rounding for unbiasedness, precompute v_l, v_r, Δ, Σq̄_u
+
+---

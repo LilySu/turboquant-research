@@ -51,6 +51,7 @@ enable_testing()
 # --------------------------------------------------------------------------
 add_library(rabitq STATIC
   rotation.cpp
+  rabitq_index.cpp
 )
 target_include_directories(rabitq PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_link_libraries(rabitq PUBLIC Eigen3::Eigen)
@@ -64,6 +65,10 @@ target_link_libraries(test_setup PRIVATE rabitq GTest::gtest_main)
 add_executable(test_rotation tests/test_rotation.cpp)
 target_link_libraries(test_rotation PRIVATE rabitq GTest::gtest_main)
 
+add_executable(test_rabitq_index tests/test_rabitq_index.cpp)
+target_link_libraries(test_rabitq_index PRIVATE rabitq GTest::gtest_main)
+
 include(GoogleTest)
 gtest_discover_tests(test_setup)
 gtest_discover_tests(test_rotation)
+gtest_discover_tests(test_rabitq_index)
